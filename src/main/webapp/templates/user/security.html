@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Security</title>
+</head>
+<body>
+<div th:replace="template::header"></div>
+<h3>Security-Change Password</h3>
+<form sec:authorize="isAuthenticated()" action="#" th:action="@{/user/security}" th:method="post"
+      th:object="${changePasswordFormVO}">
+    <table>
+        <tbody>
+        <tr>
+            <td><label>Existing Password</label></td>
+            <td><input type="password" th:field="*{existingPassword}" th:required="required"/></td>
+        </tr>
+        <tr>
+            <td><label>New Password</label></td>
+            <td><input type="password" th:field="*{newPassword}" th:required="required"/></td>
+        </tr>
+        <tr>
+            <td><label>Confirm Password</label></td>
+            <td><input type="password" th:field="*{confirmPassword}" th:required="required"/></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" th:value="'ok'"/></td>
+        </tr>
+        </tbody>
+    </table>
+    <div th:if="${#fields.hasErrors()}">
+        <ul>
+            <li th:each="error:${#fields.errors()}" th:text="${error}">Input Error</li>
+        </ul>
+    </div>
+    <div th:unless="${exception == null}">
+        <span th:text="'错误：'+${exception.message}"></span>
+    </div>
+</form>
+<div th:replace="template::footer"></div>
+</body>
+</html>

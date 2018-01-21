@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div sec:authorize="isAuthenticated()" th:fragment="microWordForm">
+    <form id="microWordForm" th:action="@{/microword/save}" th:method="post">
+        <textarea name="content" id="microWordContent" style="height:200px"></textarea>
+    </form>
+    <button type="button" id="btnsendmicroword" th:text="ok"></button>
+    <script th:src="@{/webjars/jquery/3.2.1/jquery.min.js}"></script>
+    <script th:src="@{/webjars/wangEditor/2.1.22/dist/js/wangEditor.min.js}"></script>
+    <script type="text/javascript">
+        function initEditor() {
+            var e = document.getElementById('microWordContent');
+            var editor = new wangEditor(e);
+            editor.config.menus = [
+                'link', 'emotion', 'img', '|', 'undo', 'redo', 'fullscreen'
+            ];
+//            editor.config.uploadImgUrl = '[[${#httpServletRequest.requestURI}]]microword/api/uploadmicrowordpictures';
+//            editor.config.uploadImgFileName = 'uploadimages';
+//            editor.config.hideLinkImg = true;
+//            editor.config.uploadParams = {
+//                [[${_csrf.parameterName}]]: '[[${_csrf.token}]]'
+//            };
+//            editor.config.uploadHeaders = {
+//                'X-CSRF-TOKEN': '[[${_csrf.token}]]'
+//            };
+            editor.config.pasteText = true;
+            editor.create();
+        }
+
+        function initButton() {
+            $('#btnsendmicroword').click(function (event) {
+                submitMicroWordForm();
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        initEditor();
+        initButton();
+    </script>
+</div>
+</body>
+</html>

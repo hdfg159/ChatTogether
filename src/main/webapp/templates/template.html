@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Template</title>
+</head>
+<body>
+<header th:fragment="header">
+    <div sec:authorize="isAuthenticated()">
+        <script th:inline="javascript">
+            function getNoticeCount() {
+                $.getJSON('[(${#servletContext.contextPath})]/messagenotification/api/count', {}, function () {
+                }).done(function (data, textStatus, jqXHR) {
+                    if (data !== null) {
+                        $('#notice_count').text('Message:' + data.data);
+                    } else {
+                        $('#notice_count').text('Message:0');
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    alert('Request Error!' + errorThrown);
+                });
+            }
+        </script>
+        <form action="#" th:action="@{/logout}" th:method="post">
+            <span sec:authentication="name"></span>
+            <span th:text="',Welcome to the T-Chat System!'">Logo</span>
+            <input type="submit" th:value="'Logout'" value="退出">
+        </form>
+        <a th:href="@{/}" th:text="'HomePage'"></a>
+        <a href="#" th:href="@{/userprofile/details/{username}(username=${#authentication.name})}"
+           th:text="Details">个人资料</a>
+        <a href="#" th:href="@{/user/security}" th:text="'Security'">安全管理</a>
+        <a href="#" th:href="@{/user/users}" th:text="'User Manage'"
+           sec:authorize="hasAnyRole('ROLE_ADMIN_USER')">用户管理</a>
+        <a href="#" th:href="@{/userfriend/friends}" th:text="'User Friend'">好友</a>
+        <a href="#" id="notice_count" th:href="@{/messagenotification/shownotifications}"></a>
+    </div>
+    <div sec:authorize="isAnonymous()">
+        <a href="@{/}" th:text="'HomePage'"></a>
+        <a href="#" th:href="@{/register}" th:text="'Register'">注册</a>
+        <a href="#" th:href="@{/login}" th:text="'Login'">登录</a>
+    </div>
+</header>
+
+<footer th:fragment="footer">
+    <script th:src="@{/webjars/jquery/3.2.1/jquery.min.js}"></script>
+    <script th:src="@{/resources/js/app.js}"></script>
+    <th:block sec:authorize="isAuthenticated()">
+        <script>
+            getNoticeCount();
+        </script>
+    </th:block>
+</footer>
+
+<th:block th:fragment="editorCss">
+    <link rel="stylesheet" th:type="'text/css'" th:href="@{/webjars/wangEditor/2.1.22/dist/css/wangEditor.min.css}">
+</th:block>
+</body>
+</html>

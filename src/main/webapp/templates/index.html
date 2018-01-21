@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Together</title>
+    <th:block th:replace="template::editorCss">
+    </th:block>
+    <script th:inline="javascript">
+        function submitMicroWordForm() {
+            let reg = /\<p\>\<br\>\<\/p\>/g;
+            var microWordContentSelector = $('#microWordContent');
+            microWordContentSelector.val(microWordContentSelector.val().replace(reg, ''));
+            if (microWordContentSelector.val().length > 200) {
+                alert('Data too long...');
+                return;
+            }
+            $.post('[(${#servletContext.contextPath})]/microword/api/save', $('#microWordForm').serialize(), function () {
+            }).done(function (data, textStatus, jqXHR) {
+                history.go(0);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert('保存失败!');
+            });
+        }
+
+        function deleteMicroWords() {
+            $.post('[(${#servletContext.contextPath})]/microword/api/deleteBatch', $('#microWordsForm').serialize(), function () {
+            }).done(function (data, textStatus, jqXHR) {
+                history.go(0);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert('Request Error!' + errorThrown);
+            });
+        }
+
+        function deleteMicroWord(microWordId) {
+            $.post('[(${#servletContext.contextPath})]/microword/api/delete', {
+                'id': microWordId, _csrf: [[${_csrf.token}]]
+            }, function () {
+            }).done(function (data, textStatus, jqXHR) {
+                history.go(0);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert('Request Error!' + errorThrown);
+            });
+        }
+
+        function agreeMicroWord(microWordId) {
+            var microWordAgreeCountSelector = $('#microWordId_agree_' + microWordId);
+            $.post('[(${#servletContext.contextPath})]/microwordagree/api/save', {
+                'microWordId': microWordId, _csrf: [[${_csrf.token}]]
+            }, function () {
+            }).done(function (data, textStatus, jqXHR) {
+                microWordAgreeCountSelector.val(parseInt(microWordAgreeCountSelector.val()) + 1);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.info('Request Error!' + errorThrown);
+                alert('您已经点赞过!不能再操作哦~');
+            });
+        }
+    </script>
+</head>
+<body>
+<div th:replace="template::header"></div>
+<div>
+    <form action="#" th:action="@{/search}" th:method="get">
+        <label th:text="'Search Content :'"></label>
+        <input type="text" name="searchContent"/>
+        <select th:name="'searchItem'">
+            <option th:text="'MicroWord'" th:value="'microWord'"></option>
+            <option th:text="'Username'" th:value="'username'"></option>
+        </select>
+        <input type="submit" th:value="'Search'"/>
+    </form>
+</div>
+<br/>
+<div th:replace="/template/microword::microWordForm"></div>
+<h3 th:text="'Micro Word'">Theme</h3>
+<form th:action="@{/}" th:method="post" th:id="'microWordsForm'" th:unless="${microWords == null}">
+    <div sec:authorize="hasAnyRole('ROLE_ADMIN_MICROWORD')">
+        <input th:type="'button'" th:onclick="'selectAllCheck(\'microWordIds\',\'true\');'"
+               th:value="'SelectAll'"/>
+        <input th:type="'button'" th:onclick="'reserveAllCheck(\'microWordIds\');'" th:value="'ReserveAll'"/>
+        <input th:type="'button'" th:onclick="'selectAllCheck(\'microWordIds\',\'false\');'"
+               th:value="'UnSelectAll'"/>
+        <input th:type="'button'" th:onclick="'deleteMicroWords();'" th:value="'Delete'"/>
+    </div>
+    <div th:each="microWord:${microWords}" style="border: dashed">
+        <input type="checkbox" name="microWordIds" th:value="${microWord.id}"
+               sec:authorize="hasAnyRole('ROLE_ADMIN_MICROWORD')"/>
+        <a th:text="${microWord.user.username}"
+           th:href="${#servletContext.contextPath}+'/userprofile/details/'+${microWord.user.username}" href="#"></a>
+        <span th:text="${#dates.format(microWord.createTime,'yy-MM-dd HH:mm:ss')}"></span>
+        <a href="#" th:href="@{/microword/details/{microWordId}(microWordId=${microWord.id})}" th:text="'View'">View</a>
+        <input th:type="button"
+               th:if="${#authentication.name == microWord.user.username or #authorization.expression('hasAnyRole(''ROLE_ADMIN_MICROWORD'')')}"
+               th:onclick="'deleteMicroWord('+${microWord.id}+')'" th:value="'Delete'"/>
+        <div th:utext="${microWord.content}"></div>
+        <span th:text="'Comment:'+${#lists.size(microWord.microWordComments)}"></span>
+        <span th:text="' | Agree:'"></span>
+        <input type="button" th:id="'microWordId_agree_'+${microWord.id}"
+               th:onclick="'agreeMicroWord('+${microWord.id}+')'"
+               th:value="${#lists.size(microWord.microWordAgrees)}"/>
+    </div>
+</form>
+<div th:if="${#bools.isTrue(isSearchMicroWordsResult)}">
+    <div th:replace="microword/search :: searchmicroWordpageform"></div>
+</div>
+<div th:if="${#bools.isFalse(isSearchMicroWordsResult)}">
+    <form action="" th:action="@{/}" th:method="get" th:onsubmit="'return pageFormSubmit()'">
+        <span th:text="${microWords.number+1}">页</span>
+        <span th:text="'/'">/</span>
+        <span th:text="${microWords.totalPages}+' Pages'">总页数</span>
+        <div>
+            <label for="input_page" th:text="'Input Page'"></label>
+            <input type="number" id="input_page" th:min="1" th:max="${microWords.totalPages}"
+                   th:required="required"/>
+            <input type="hidden" id="submit_page" th:name="page"/>
+            <input type="submit" th:value="Go">
+        </div>
+    </form>
+    <a th:unless="${microWords.number == 0}"
+       th:href="@{/(page=${microWords.number - 1})}"
+       th:text="'Previous'">上一页</a>
+    <a th:unless="${microWords.number+1==microWords.totalPages}"
+       th:href="@{/(page=${microWords.number + 1})}"
+       th:text="'Next'">下一页</a>
+    <br/>
+    <span th:text="'Page Displays Elements Count:'+${microWords.numberOfElements}+'/'">页面显示数据量</span>
+    <span th:text="'All Elements Count:'+${microWords.totalElements}">总数据量</span>
+</div>
+<div th:replace="template::footer"></div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>错误</title>
+</head>
+<body>
+<div th:text="'不好意思，访问遇到错误!'">Test Error</div>
+<div th:text="'错误信息:'+${exception.message}">错误信息</div>
+<label th:text="'错误源：'"></label><br/>
+<div th:text="${exception.stackTrace}">错误原因</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat With User</title>
+    <script th:inline="javascript">
+        function submitChatMessageForm() {
+            let reg = /\<p\>\<br\>\<\/p\>/g;
+            var chatMessageTextarea = $('#chatMessageTextarea');
+            chatMessageTextarea.val(chatMessageTextarea.val().replace(reg, ''));
+            $.post('[(${#servletContext.contextPath})]/message/api/save', $('#chatMessageForm').serialize(), function () {
+            })
+                .done(function (data, textStatus, jqXHR) {
+                    if (data !== null) {
+                        editor.$txt.html('<p><br></p>');
+                        var date = timeStampToString(data.data.createTime);
+                        $('#head')
+                            .prepend("<div style='border: dotted;'>You:" + date + "<div>" + data.data.content + "</div></div>");
+                    }
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert('Request Error!' + errorThrown);
+            });
+        }
+    </script>
+    <th:block th:replace="template::editorCss"></th:block>
+</head>
+<body>
+<div th:replace="template::header"></div>
+<br/>
+<script th:src="@{/webjars/jquery/3.2.1/jquery.min.js}"></script>
+<script th:src="@{/webjars/wangEditor/2.1.22/dist/js/wangEditor.min.js}"></script>
+<form action="#" th:action="@{/}" th:method="post" th:id="'chatMessageForm'">
+    <textarea id="chatMessageTextarea" name="content" th:style="'height:200px'"></textarea>
+    <input type="hidden" th:value="${chatUsername}" name="receiveUsername"/>
+</form>
+<input type="button" th:value="'Send'" onclick="submitChatMessageForm();"/>
+<script type="text/javascript">
+    var e = document.getElementById('chatMessageTextarea');
+    var editor = new wangEditor(e);
+    editor.config.menus = [
+        'link', 'emotion', '|', 'undo', 'redo', 'fullscreen'
+    ];
+    editor.config.pasteText = true;
+    editor.create();
+</script>
+<div id="head"></div>
+<th:block th:each="message:${messages}">
+    <div style="border: dotted">
+        <span th:text="${message.sendUser.username == #authentication.principal.username?'You:':message.sendUser.username}"></span>
+        <span th:text="${#dates.format(message.createTime,'yyyy-MM-dd HH:mm:ss')}"></span>
+        <div th:utext="${message.content}"></div>
+    </div>
+</th:block>
+<div>
+    <form action="" th:action="@{/message/chat/{username}(username=${chatUsername})}" th:method="get"
+          th:onsubmit="'return pageFormSubmit()'">
+        <span th:text="${messages.number+1}">页</span>
+        <span th:text="'/'">/</span>
+        <span th:text="${messages.totalPages}+' Pages'">总页数</span>
+        <input type="number" th:min="1" th:max="${messages.totalPages}" th:id="input_page"
+               th:required="required"/>
+        <input type="hidden" th:name="page" th:id="submit_page"/>
+        <input type="submit" th:value="Go">
+    </form>
+    <a th:unless="${messages.number == 0}"
+       th:href="@{/message/chat/{username}(page=${messages.number - 1},username=${chatUsername})}"
+       th:text="'Previous'">上一页</a>
+    <a th:unless="${messages.number+1==messages.totalPages||messages.number+1==messages.totalPages}"
+       th:href="@{/message/chat/{username}(page=${messages.number+1},username=${chatUsername})}"
+       th:text="'Next'">下一页</a>
+    <br/>
+    <span th:text="'Page Displays Elements Count:'+${messages.numberOfElements}+'/'">页面显示数据量</span>
+    <span th:text="'All Elements Count:'+${messages.totalElements}">总数据量</span>
+</div>
+<div th:replace="template::footer"></div>
+</body>
+</html>

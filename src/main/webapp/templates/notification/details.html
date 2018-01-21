@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User's Notifications</title>
+    <script th:inline="javascript">
+        function markNotificationsAsRead() {
+            $.getJSON('[(${#servletContext.contextPath})]/messagenotification/api/markread', {}, function () {
+                console.info('marking notifications as read,wait for time...');
+            }).done(function (data, textStatus, jqXHR) {
+                history.go(0);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert('Request Error!' + errorThrown);
+            });
+        }
+
+        function markNotificationAsRead(notificationId, href) {
+            $.getJSON('[(${#servletContext.contextPath})]/messagenotification/api/markread/' + notificationId, {}, function () {
+            }).done(function (data, textStatus, jqXHR) {
+                if (href.search('/userfriend/api/accept/') !== -1) {
+                    acceptUserFriend(href);
+                } else {
+                    window.location.href = href;
+                }
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert('Request Error!' + errorThrown);
+            });
+        }
+
+        function acceptUserFriend(href) {
+            $.getJSON(href, {}, function () {
+            }).done(function (data, textStatus, jqXHR) {
+                alert("accept userfriend success!");
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert('You are already friends...' + textStatus);
+            });
+        }
+    </script>
+</head>
+<body>
+<div th:replace="template::header"></div>
+<input type="button" th:onclick="'markNotificationsAsRead();'" th:value="'Mark All Notifications As Read'"/>
+<table>
+    <tr>
+        <th>Date</th>
+        <th>Username</th>
+        <th></th>
+        <th></th>
+    </tr>
+    <th:block th:each="notification:${notifications}" th:unless="${notifications == null}">
+        <tr>
+            <td th:text="${#dates.format(notification.modifiedTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${notification.sendNotificationUser.username}"></td>
+            <td>
+                <a href="javascript:void(0);" th:text="${notification.content}"
+                   th:onclick="'markNotificationAsRead('+${notification.id}+',\''+${notification.url}+'\');'"></a>
+            </td>
+            <td>
+                <span th:text="${notification.isRead == 1?'[Read]':'[UnRead]'}"></span>
+            </td>
+        </tr>
+    </th:block>
+</table>
+<div th:with="queryStringWithoutPage=${#strings.substringBefore(#httpServletRequest.queryString,'&page')},queryString=${#httpServletRequest.queryString}">
+    <form th:action="@{/notification/shownotifications}" method="get"
+          th:onsubmit="'return pageFormSubmit()'">
+        <span th:text="${notifications.number+1}">页</span>
+        <span th:text="'/'">/</span>
+        <span th:text="${notifications.totalPages}+' Pages'">总页数</span>
+        <input type="number" th:min="1" th:max="${notifications.totalPages}" th:id="input_page"
+               th:required="required"/>
+        <input type="hidden" name="page" id="submit_page"/>
+        <input type="submit" th:value="Go">
+    </form>
+    <a th:unless="${notifications.number == 0}"
+       th:href="${#httpServletRequest.requestURI}+'?'+${#strings.isEmpty(queryStringWithoutPage)?'':queryStringWithoutPage}+'&page='+${notifications.number - 1}"
+       th:text="'Previous'">上一页</a>
+    <a th:unless="${notifications.number+1==notifications.totalPages||notifications.number+1==notifications.totalPages}"
+       th:href="${#httpServletRequest.requestURI}+'?'+${#strings.isEmpty(queryStringWithoutPage)?'':queryStringWithoutPage}+'&page='+${notifications.number + 1}"
+       th:text="'Next'">下一页</a>
+    <br/>
+    <span th:text="'Page Displays Elements Count:'+${notifications.numberOfElements}+'/'">页面显示数据量</span>
+    <span th:text="'All Elements Count:'+${notifications.totalElements}">总数据量</span>
+</div>
+<div th:replace="template::footer"></div>
+</body>
+</html>

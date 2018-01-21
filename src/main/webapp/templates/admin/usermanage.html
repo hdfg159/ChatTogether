@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>User Manager</title>
+    <script th:inline="javascript">
+        function deleteUser(userId) {
+            $.getJSON('[(${#servletContext.contextPath})]/user/api/delete', {
+                'id': userId
+            }, function () {
+            }).done(function () {
+                history.go(0);
+            }).always(function (jqXHR) {
+            });
+        }
+
+        function reset(username) {
+            $.getJSON('[(${#servletContext.contextPath})]/user/api/reset', {
+                'username': username
+            }, function () {
+            }).done(function (data, textStatus, jqXHR) {
+                alert('Reset Success! New PassWord:' + data.data);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert('Request Error!' + errorThrown);
+            });
+        }
+    </script>
+</head>
+<body>
+<div th:replace="template::header"></div>
+<h3 th:text="'User Manage'"></h3>
+<table th:unless="${users == null}" sec:authorize="hasRole('ROLE_ADMIN_USER')">
+    <tbody>
+    <tr>
+        <th><label>UserId</label></th>
+        <th><label>Username</label></th>
+        <th><label>User Authentications</label></th>
+        <th><label>Do</label></th>
+    </tr>
+    <tr th:each="user:${users}">
+        <td><span th:text="${user.id}">UserId</span></td>
+        <td><span th:text="${user.username}">Username</span></td>
+        <td>
+            <div th:each="authentication:${user.userAuthorizations}" th:unless="${user.userAuthorizations== null}">
+                <span th:text="${authentication.userPermission.roleName}">
+                    User Authorities
+                </span>
+            </div>
+        </td>
+        <td>
+            <input type="button" th:onclick="'deleteUser('+${user.id}+')'" th:value="'Delete'" value="Delete"
+                   th:unless="${user.username eq #authentication.principal.username}"/>
+            <a href="#" th:href="@{/user/authorize(username=${user.username})}" th:text="'Authentications'"></a>
+            <input type="button"
+                   th:value="'Reset Password'" value="Reset Password"
+                   th:onclick="'reset(\''+${user.username}+'\')'"/>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<div>
+    <form action="" th:action="@{/user/users}" th:method="get" th:onsubmit="'return pageFormSubmit()'">
+        <span th:text="${users.number+1}">页</span>
+        <span th:text="'/'">/</span>
+        <span th:text="${users.totalPages}+' Pages'">总页数</span>
+        <input type="number" th:min="1" th:max="${users.totalPages}" th:id="input_page" th:required="required"/>
+        <input type="hidden" th:name="page" th:id="submit_page"/>
+        <input type="submit" th:value="Go">
+    </form>
+    <a th:unless="${users.number==0}" th:href="@{/user/users/(page=${users.number - 1})}" th:text="'Previous'">上一页</a>
+    <a th:unless="${users.number+1==users.totalPages||users.number+1==users.totalPages}"
+       th:href="@{/user/users/(page=${users.number+1})}"
+       th:text="'Next'">下一页</a><br/>
+    <span th:text="'Page Displays Elements Count:'+${users.numberOfElements}+'/'">页面显示数据量</span>
+    <span th:text="'All Elements Count:'+${users.totalElements}">总数据量</span>
+</div>
+<div th:replace="template::footer"></div>
+</body>
+</html>
