@@ -50,6 +50,11 @@ public class WebAppWideExceptionHandler {
 		return getModelAndView(e);
 	}
 	
+	@ExceptionHandler(UserAccountStateNotFoundException.class)
+	@ResponseStatus(value = NOT_FOUND)
+	public ModelAndView userAccountStateNotFoundExceptionHandler(Exception e) {
+		return getModelAndView(e);
+	}
 	
 	@ExceptionHandler(UserFriendNotFoundException.class)
 	@ResponseStatus(value = NOT_FOUND)

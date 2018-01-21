@@ -25,6 +25,22 @@
                 alert('Request Error!' + errorThrown);
             });
         }
+
+        function switchUserAccountState(id) {
+            $.getJSON('[(${#servletContext.contextPath})]/user/api/switchState', {
+                'id': id
+            }, function () {
+            }).done(function (data, textStatus, jqXHR) {
+                var switchState = $('#switchState');
+                if (switchState.val() === 'Disable') {
+                    switchState.val('Enable');
+                    return;
+                }
+                switchState.val('Disable');
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert('Request Error!' + errorThrown);
+            });
+        }
     </script>
 </head>
 <body>
@@ -38,9 +54,10 @@
         <th><label>User Authentications</label></th>
         <th><label>Do</label></th>
     </tr>
-    <tr th:each="user:${users}">
+    <tr th:each="user:${users}" th:if="${#authentication.name != user.username}">
         <td><span th:text="${user.id}">UserId</span></td>
-        <td><span th:text="${user.username}">Username</span></td>
+        <td><a th:text="${user.username}"
+               th:href="${#servletContext.contextPath}+'/userprofile/details/'+${user.username}">Username</a></td>
         <td>
             <div th:each="authentication:${user.userAuthorizations}" th:unless="${user.userAuthorizations== null}">
                 <span th:text="${authentication.userPermission.roleName}">
@@ -50,11 +67,22 @@
         </td>
         <td>
             <input type="button" th:onclick="'deleteUser('+${user.id}+')'" th:value="'Delete'" value="Delete"
-                   th:unless="${user.username eq #authentication.principal.username}"/>
-            <a href="#" th:href="@{/user/authorize(username=${user.username})}" th:text="'Authentications'"></a>
+                   th:unless="${user.username eq #authentication.name}"/>
+        </td>
+        <td>
+            <input type="button" th:onclick="'location=\''+@{/user/authorize(username=${user.username})}+'\''"
+                   th:value="'Authentications'"/>
+        </td>
+        <td>
             <input type="button"
                    th:value="'Reset Password'" value="Reset Password"
                    th:onclick="'reset(\''+${user.username}+'\')'"/>
+        </td>
+        <td>
+            <input type="button"
+                   th:onclick="'switchUserAccountState('+${user.id}+');'"
+                   th:value="${user.getUserAccountState().getIsEnabled()==0?'Enable':'Disable'}"
+                   th:id="'switchState'"/>
         </td>
     </tr>
     </tbody>

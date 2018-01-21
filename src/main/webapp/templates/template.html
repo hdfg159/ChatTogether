@@ -34,10 +34,10 @@
         <a href="#" th:href="@{/user/users}" th:text="'User Manage'"
            sec:authorize="hasAnyRole('ROLE_ADMIN_USER')">用户管理</a>
         <a href="#" th:href="@{/userfriend/friends}" th:text="'User Friend'">好友</a>
-        <a href="#" id="notice_count" th:href="@{/messagenotification/shownotifications}"></a>
+        <a href="#" id="notice_count" th:href="@{/messagenotification/shownotifications}" th:text="'Message'"></a>
     </div>
     <div sec:authorize="isAnonymous()">
-        <a href="@{/}" th:text="'HomePage'"></a>
+        <a th:href="@{/}" th:text="'HomePage'"></a>
         <a href="#" th:href="@{/register}" th:text="'Register'">注册</a>
         <a href="#" th:href="@{/login}" th:text="'Login'">登录</a>
     </div>

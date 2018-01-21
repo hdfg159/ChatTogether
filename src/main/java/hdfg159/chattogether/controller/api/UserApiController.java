@@ -41,4 +41,11 @@ public class UserApiController {
 		String newPassword = userService.resetPassword(user.getUsername());
 		return responseDataSuccess(newPassword);
 	}
+	
+	@Secured(ADMIN_USER)
+	@GetMapping("/switchState")
+	public BaseJsonObject<?> disable(User user) {
+		userService.switchUserAccountStateById(user.getId());
+		return responseSuccess();
+	}
 }

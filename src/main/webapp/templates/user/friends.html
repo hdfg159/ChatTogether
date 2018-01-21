@@ -27,7 +27,11 @@
         </tr>
         <tr th:each="userFriend:${userFriendPage}">
             <td th:text="${userFriend.passiveUser.id}">id</td>
-            <td th:text="${userFriend.passiveUser.username}">username</td>
+            <td>
+                <a href="#"
+                   th:href=" ${#servletContext.contextPath}+'/userprofile/details/'+${userFriend.passiveUser.username}"
+                   th:text="${userFriend.passiveUser.username}"></a>
+            </td>
             <td>
                 <a href="#" th:href="@{/message/chat/{username}(username=${userFriend.passiveUser.username})}">Chat</a>
             </td>

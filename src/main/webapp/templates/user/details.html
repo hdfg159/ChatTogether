@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>UserDetails</title>
@@ -10,11 +11,27 @@
         }
 
         function addFriend(username) {
-            $.getJSON('/userfriend/api/addfriend', {
+            $.getJSON('[(${#servletContext.contextPath})]/userfriend/api/addfriend', {
                 'username': username
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
                 alert('Add Friend Request Success!');
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert('Request Error!' + errorThrown);
+            });
+        }
+
+        function switchUserAccountState(id) {
+            $.getJSON('[(${#servletContext.contextPath})]/user/api/switchState', {
+                'id': id
+            }, function () {
+            }).done(function (data, textStatus, jqXHR) {
+                var switchState = $('#switchState');
+                if (switchState.val() === 'Disable') {
+                    switchState.val('Enable');
+                    return;
+                }
+                switchState.val('Disable');
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 alert('Request Error!' + errorThrown);
             });
@@ -33,14 +50,14 @@
             <td th:text="${userProfile.user.id}"></td>
             <td th:text="'Sex:'"></td>
             <td>
-                <select th:name="'sex'" th:disabled="${#authentication.principal.username!=userProfile.user.username}">
+                <select th:name="'sex'" th:disabled="${#authentication.name!=userProfile.user.username}">
                     <option value="男" th:selected="${userProfile.sex == '男'}">男</option>
                     <option value="女" th:selected="${userProfile.sex == '女'}">女</option>
                 </select>
             </td>
             <td th:text="'Age:'"></td>
             <td>
-                <input th:disabled="${#authentication.principal.username!=userProfile.user.username}" th:name="'age'"
+                <input th:disabled="${#authentication.name!=userProfile.user.username}" th:name="'age'"
                        th:type="number" th:value="${userProfile.age}" value="年龄"
                        type="text"/>
             </td>
@@ -50,12 +67,12 @@
             <td th:text="${userProfile.user.username}"></td>
             <td th:text="'QQ:'"></td>
             <td>
-                <input th:disabled="${#authentication.principal.username!=userProfile.user.username}" th:name="'qq'"
+                <input th:disabled="${#authentication.name!=userProfile.user.username}" th:name="'qq'"
                        type="text" value="QQ" th:value="${userProfile.qq}"/>
             </td>
             <td th:text="'Birthday:'"></td>
             <td>
-                <input th:disabled="${#authentication.principal.username!=userProfile.user.username}" type="date"
+                <input th:disabled="${#authentication.name!=userProfile.user.username}" type="date"
                        th:id="'birthdaySource'"
                        th:value="${#dates.format(userProfile.birthday,'yyyy-MM-dd')}"/>
                 <input type="hidden" th:id="'birthday'" th:name="'birthday'"/>
@@ -65,13 +82,13 @@
             <td th:text="'WeChat:'">
             </td>
             <td>
-                <input th:disabled="${#authentication.principal.username!=userProfile.user.username}" name="wechat"
+                <input th:disabled="${#authentication.name!=userProfile.user.username}" name="wechat"
                        th:required="required" type="text"
                        th:value="${userProfile.wechat}"/>
             </td>
             <td th:text="'PhoneNumber:'"></td>
             <td>
-                <input th:disabled="${#authentication.principal.username!=userProfile.user.username}"
+                <input th:disabled="${#authentication.name!=userProfile.user.username}"
                        name="phoneNumber" type="text" maxlength="11" th:required="required"
                        th:value="${userProfile.phoneNumber}"/>
             </td>
@@ -81,13 +98,13 @@
         <tr>
             <td th:text="'Email:'"></td>
             <td>
-                <input th:disabled="${#authentication.principal.username!=userProfile.user.username}" th:name="'email'"
+                <input th:disabled="${#authentication.name!=userProfile.user.username}" th:name="'email'"
                        th:required="required" type="email"
                        th:value="${userProfile.email}"/>
             </td>
             <td th:text="'SelfIntroduction:'"></td>
             <td>
-                <input th:disabled="${#authentication.principal.username!=userProfile.user.username}"
+                <input th:disabled="${#authentication.name!=userProfile.user.username}"
                        th:name="'selfIntroduction'"
                        th:required="required" type="text"
                        th:value="${userProfile.selfIntroduction}"/>
@@ -96,14 +113,20 @@
             <td th:text="${#dates.format(userProfile.modifiedTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
         </tr>
         <tr>
-            <td th:if="${#authentication.principal.username == userProfile.user.username}">
+            <td th:if="${#authentication.name == userProfile.user.username}">
                 <input type="button" th:onclick="'submitUserProfileForm()'" value="save"></td>
             <td>
                 <input type="hidden" th:name="id" th:value="${userProfile.id}">
             </td>
-            <td th:if="${#authentication.principal.username!=userProfile.user.username and !isExistUserFriend}">
+            <td th:if="${#authentication.name!=userProfile.user.username and !isExistUserFriend}">
                 <input type="button" th:onclick="'addFriend(\''+${userProfile.user.username}+'\');'"
                        th:value="'Add Friend'"/>
+            </td>
+            <td sec:authorize="hasAnyRole('ROLE_ADMIN_USER')"
+                th:if="${#authentication.name != userProfile.user.username}">
+                <input th:id="'switchState'" type="button"
+                       th:onclick="'switchUserAccountState('+${userProfile.user.id}+');'"
+                       th:value="${userProfile.user.getUserAccountState().getIsEnabled()==0?'Enable':'Disable'}"/>
             </td>
         </tr>
     </table>

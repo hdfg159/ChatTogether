@@ -82,4 +82,14 @@ public interface UserService {
 	 * @return User 用户
 	 */
 	User findByUsernameIgnoreCase(String username);
+	
+	/**
+	 * 切换用户账户状态
+	 *
+	 * @param id
+	 * 		用户ID
+	 *
+	 * @return boolean
+	 */
+	boolean switchUserAccountStateById(Long id);
 }

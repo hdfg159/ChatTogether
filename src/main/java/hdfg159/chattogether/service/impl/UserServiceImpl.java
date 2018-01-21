@@ -3,10 +3,7 @@ package hdfg159.chattogether.service.impl;
 import hdfg159.chattogether.data.*;
 import hdfg159.chattogether.domain.*;
 import hdfg159.chattogether.domain.ao.ChangePasswordAO;
-import hdfg159.chattogether.exception.PasswordNotMatchException;
-import hdfg159.chattogether.exception.UserExistException;
-import hdfg159.chattogether.exception.UserNotFoundException;
-import hdfg159.chattogether.exception.UserPermissionNotFoundException;
+import hdfg159.chattogether.exception.*;
 import hdfg159.chattogether.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.Optional;
 
+import static hdfg159.chattogether.constant.BooleanStateConsts.FALSE;
 import static hdfg159.chattogether.constant.BooleanStateConsts.TRUE;
 import static hdfg159.chattogether.constant.RoleConsts.USER;
 import static hdfg159.chattogether.constant.UserProfileConsts.*;
@@ -106,6 +104,18 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User findByUsernameIgnoreCase(String username) {
 		return userRepository.findByUsernameIgnoreCase(username).orElseThrow(() -> new UserNotFoundException("For Username:" + username));
+	}
+	
+	@Override
+	public boolean switchUserAccountStateById(Long id) {
+		UserAccountState userAccountState = userAccountStateRepository
+				.findByUser_Id(id)
+				.orElseThrow(() -> new UserAccountStateNotFoundException("For userId:" + id));
+		Integer isEnable = userAccountState.getIsEnabled() == 0 ? TRUE : FALSE;
+		userAccountState.setIsEnabled(isEnable);
+		userAccountState.setModifiedTime(new Date());
+		userAccountStateRepository.save(userAccountState);
+		return true;
 	}
 	
 	private void changeUserPassword(String username, String newPassword) {
