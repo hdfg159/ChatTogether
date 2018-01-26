@@ -15,7 +15,7 @@
                 alert('Data too long...');
                 return;
             }
-            $.post('[(${#servletContext.contextPath})]/microword/api/save', $('#microWordForm').serialize(), function () {
+            $.post('[(@{/microword/api/save})]', $('#microWordForm').serialize(), function () {
             }).done(function (data, textStatus, jqXHR) {
                 history.go(0);
             }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -24,7 +24,7 @@
         }
 
         function deleteMicroWords() {
-            $.post('[(${#servletContext.contextPath})]/microword/api/deleteBatch', $('#microWordsForm').serialize(), function () {
+            $.post('[(@{/microword/api/deleteBatch})]', $('#microWordsForm').serialize(), function () {
             }).done(function (data, textStatus, jqXHR) {
                 history.go(0);
             }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -33,7 +33,7 @@
         }
 
         function deleteMicroWord(microWordId) {
-            $.post('[(${#servletContext.contextPath})]/microword/api/delete', {
+            $.post('[(@{/microword/api/delete})]', {
                 'id': microWordId, _csrf: [[${_csrf.token}]]
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
@@ -45,7 +45,7 @@
 
         function agreeMicroWord(microWordId) {
             var microWordAgreeCountSelector = $('#microWordId_agree_' + microWordId);
-            $.post('[(${#servletContext.contextPath})]/microwordagree/api/save', {
+            $.post('[(@{/microwordagree/api/save})]', {
                 'microWordId': microWordId, _csrf: [[${_csrf.token}]]
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
@@ -85,8 +85,11 @@
     <div th:each="microWord:${microWords}" style="border: dashed">
         <input type="checkbox" name="microWordIds" th:value="${microWord.id}"
                sec:authorize="hasAnyRole('ROLE_ADMIN_MICROWORD')"/>
+        <img th:src="@{/{profilePhoto}(profilePhoto=${microWord.user.userProfile.profilePhoto})}"
+             th:width="32px"
+             th:height="32px"/>
         <a th:text="${microWord.user.username}"
-           th:href="${#servletContext.contextPath}+'/userprofile/details/'+${microWord.user.username}" href="#"></a>
+           th:href="@{/userprofile/details/{username}(username=${microWord.user.username})}"></a>
         <span th:text="${#dates.format(microWord.createTime,'yy-MM-dd HH:mm:ss')}"></span>
         <a href="#" th:href="@{/microword/details/{microWordId}(microWordId=${microWord.id})}" th:text="'View'">View</a>
         <input th:type="button"

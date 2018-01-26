@@ -5,8 +5,7 @@
     <title>User's Notifications</title>
     <script th:inline="javascript">
         function markNotificationsAsRead() {
-            $.getJSON('[(${#servletContext.contextPath})]/messagenotification/api/markread', {}, function () {
-                console.info('marking notifications as read,wait for time...');
+            $.getJSON('[(@{/messagenotification/api/markread})]', {}, function () {
             }).done(function (data, textStatus, jqXHR) {
                 history.go(0);
             }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -14,8 +13,12 @@
             });
         }
 
-        function markNotificationAsRead(notificationId, href) {
-            $.getJSON('[(${#servletContext.contextPath})]/messagenotification/api/markread/' + notificationId, {}, function () {
+        function markNotificationAsRead(notificationId, href, isRead) {
+            if (isRead === 1) {
+                window.location.href = href;
+                return;
+            }
+            $.getJSON('[(@{/messagenotification/api/markread/})]' + notificationId, {}, function () {
             }).done(function (data, textStatus, jqXHR) {
                 if (href.search('/userfriend/api/accept/') !== -1) {
                     acceptUserFriend(href);
@@ -53,7 +56,7 @@
             <td th:text="${notification.sendNotificationUser.username}"></td>
             <td>
                 <a href="javascript:void(0);" th:text="${notification.content}"
-                   th:onclick="'markNotificationAsRead('+${notification.id}+',\''+${notification.url}+'\');'"></a>
+                   th:onclick="'markNotificationAsRead('+${notification.id}+',\''+@{/{url}(url=${notification.url})}+'\','+${notification.isRead}+');'"></a>
             </td>
             <td>
                 <span th:text="${notification.isRead == 1?'[Read]':'[UnRead]'}"></span>

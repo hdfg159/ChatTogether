@@ -1,6 +1,7 @@
 package hdfg159.chattogether.service;
 
 import hdfg159.chattogether.domain.UserProfile;
+import hdfg159.chattogether.domain.ao.ProfilePhotoAO;
 import hdfg159.chattogether.domain.vo.UserProfileFormVO;
 
 /**
@@ -37,4 +38,14 @@ public interface UserProfileService {
 	 * @return UserProfile 用户资料
 	 */
 	UserProfile findById(Long id);
+	
+	/**
+	 * 保存用户自定义头像
+	 *
+	 * @param profilePhotoAO
+	 * 		头像相关类
+	 *
+	 * @return boolean
+	 */
+	boolean saveProfilePhoto(ProfilePhotoAO profilePhotoAO);
 }

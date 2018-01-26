@@ -8,7 +8,7 @@
     <script th:inline="javascript">
         function agreeMicroWordDetail(microWordId) {
             var btn_agree = $('#btnagree');
-            $.post('[(${#servletContext.contextPath})]/microwordagree/api/save', {
+            $.post('[(@{/microwordagree/api/save})]', {
                 'microWordId': microWordId, _csrf: [[${_csrf.token}]]
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
@@ -20,7 +20,7 @@
         }
 
         function deleteMicroWordDetail(id) {
-            $.post('[(${#servletContext.contextPath})]/microword/api/delete', {
+            $.post('[(@{/microword/api/delete})]', {
                 'id': id, _csrf: [[${_csrf.token}]]
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
@@ -31,7 +31,7 @@
         }
 
         function deleteMicroWordComment(id) {
-            $.post('[(${#servletContext.contextPath})]/microwordcomment/api/delete', {
+            $.post('[(@{/microwordcomment/api/delete})]', {
                 'id': id, _csrf: [[${_csrf.token}]]
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
@@ -42,7 +42,7 @@
         }
 
         function deleteMicroWordCommentReply(id) {
-            $.post('[(${#servletContext.contextPath})]/microwordcommentreply/api/delete', {
+            $.post('[(@{/microwordcommentreply/api/delete})]', {
                 'id': id, _csrf: [[${_csrf.token}]]
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
@@ -68,7 +68,7 @@
                 alert('Data too long...');
                 return;
             }
-            $.post('[(${#servletContext.contextPath})]/microwordcommentreply/api/save', $('#commentReplyForm').serialize(), function () {
+            $.post('[(@{/microwordcommentreply/api/save})]', $('#commentReplyForm').serialize(), function () {
             }).done(function (data, textStatus, jqXHR) {
                 history.go(0);
             }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -84,7 +84,7 @@
                 alert('Data too long...');
                 return;
             }
-            $.post('[(${#servletContext.contextPath})]/microwordcomment/api/save', $('#commentForm').serialize(), function () {
+            $.post('[(@{/microwordcomment/api/save})]', $('#commentForm').serialize(), function () {
             }).done(function (data, textStatus, jqXHR) {
                 history.go(0);
             }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -96,7 +96,11 @@
 <body>
 <div th:replace="template::header"></div>
 <h3>MicroWord Details</h3>
-<div th:text="'User:'+${microWordDetailVO.microWord.user.username}">微说用户名</div>
+<span th:text="'User:'"></span>
+<img th:src="@{/{profilePhoto}(profilePhoto=${microWordDetailVO.microWord.user.userProfile.profilePhoto})}"
+     th:width="32px"
+     th:height="32px"/>
+<span th:text="${microWordDetailVO.microWord.user.username}">微说用户名</span>
 <div th:text="'Date:'+${#dates.format(microWordDetailVO.microWord.createTime,'yyyy-MM-dd HH:mm:ss')}">微说日期</div>
 <div th:utext="'Content:'+${microWordDetailVO.microWord.content}">微说内容</div>
 <span th:text="'Agree:'"></span>
@@ -136,10 +140,13 @@
 </div>
 <br>
 <div th:each="microWordComment:${microWordDetailVO.getMicroWordCommentPage()}" style="border: dashed">
-    <span th:text="' Id : '+${microWordComment.id}+' | User : '"></span>
+    <img th:src="@{/{profilePhoto}(profilePhoto=${microWordComment.commentUser.userProfile.profilePhoto})}"
+         th:width="32px"
+         th:height="32px"/>
     <a th:text="${microWordComment.commentUser.username}"
-       th:href="${#servletContext.contextPath}+'/userprofile/details/'+${microWordComment.commentUser.username}"></a>
-    <span th:text="' | Date : '+${#dates.format(microWordComment.createTime,'yy-MM-dd HH:mm:ss')}"></span>
+       th:href="@{/userprofile/details/{username}(username=${microWordComment.commentUser.username})}">
+    </a>
+    <span th:text="' Date:'+${#dates.format(microWordComment.createTime,'yy-MM-dd HH:mm:ss')}"></span>
     <input type="button" value="Delete" th:onclick="'deleteMicroWordComment('+${microWordComment.id}+')'"
            th:if="${#authentication.name == microWordComment.commentUser.username or #authorization.expression('hasAnyRole(''ROLE_ADMIN_COMMENT'')')}"/>
     <input type="button" value="Reply" sec:authorize="isAuthenticated()"
@@ -147,7 +154,18 @@
     <div th:utext="${microWordComment.content}"></div>
     <ul>
         <li th:each="microWordCommentReply:${microWordComment.getMicroWordCommentReplies()}">
-            <span th:text="' Id :'+${microWordCommentReply.id}+' | User : '+${microWordCommentReply.replyUser.username}+' To '+${microWordCommentReply.repliedUser.username}+' | Date : '+${#dates.format(microWordCommentReply.createTime,'yy-MM-dd HH:mm:ss')}"></span>
+            <img th:src="@{/{profilePhoto}(profilePhoto=${microWordCommentReply.repliedUser.userProfile.profilePhoto})}"
+                 th:width="32px"
+                 th:height="32px"/>
+            <a th:href="@{/userprofile/details/{username}(username=${microWordComment.commentUser.username})}"
+               th:text="${microWordCommentReply.repliedUser.username}"></a>
+            <span th:text="' To '"></span>
+            <img th:src="@{/{profilePhoto}(profilePhoto=${microWordCommentReply.replyUser.userProfile.profilePhoto})}"
+                 th:width="32px"
+                 th:height="32px"/>
+            <a th:href="@{/userprofile/details/{username}(username=${microWordComment.commentUser.username})}"
+               th:text="${microWordCommentReply.replyUser.username}"></a>
+            <span th:text="' Date:'+${#dates.format(microWordCommentReply.createTime,'yy-MM-dd HH:mm:ss')}"></span>
             <input type="button" value="Delete"
                    th:if="${#authentication.name == microWordCommentReply.replyUser.username or #authorization.expression('hasAnyRole(''ROLE_ADMIN_COMMENT'')')}"
                    th:onclick="'deleteMicroWordCommentReply('+${microWordCommentReply.id}+')'"/>

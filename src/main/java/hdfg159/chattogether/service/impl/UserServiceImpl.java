@@ -170,6 +170,7 @@ public class UserServiceImpl implements UserService {
 				.phoneNumber(KEEP_SECRET)
 				.selfIntroduction(ABOUT)
 				.sex(SEX_MAN)
+				.profilePhoto(PROFILE_PHOTO_DEFAULT)
 				.createTime(now)
 				.modifiedTime(now)
 				.build();

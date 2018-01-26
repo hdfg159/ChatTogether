@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 
@@ -41,7 +40,7 @@ public class MicroWordApiController {
 	@Secured(USER)
 	@PostMapping("/save")
 	@ResponseStatus(CREATED)
-	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetail, @Valid MicroWordFormVO microWordFormVO, Errors errors, UriComponentsBuilder ucb) {
+	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetail, @Valid MicroWordFormVO microWordFormVO, Errors errors) {
 		if (errors.hasErrors()) {
 			return responseFail(errors);
 		}

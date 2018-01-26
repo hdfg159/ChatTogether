@@ -8,7 +8,7 @@
             let reg = /\<p\>\<br\>\<\/p\>/g;
             var chatMessageTextarea = $('#chatMessageTextarea');
             chatMessageTextarea.val(chatMessageTextarea.val().replace(reg, ''));
-            $.post('[(${#servletContext.contextPath})]/message/api/save', $('#chatMessageForm').serialize(), function () {
+            $.post('[(@{/message/api/save})]', $('#chatMessageForm').serialize(), function () {
             })
                 .done(function (data, textStatus, jqXHR) {
                     if (data !== null) {
@@ -46,7 +46,10 @@
 <div id="head"></div>
 <th:block th:each="message:${messages}">
     <div style="border: dotted">
-        <span th:text="${message.sendUser.username == #authentication.principal.username?'You:':message.sendUser.username}"></span>
+        <img th:src="@{/{profilePhoto}(profilePhoto=${message.sendUser.userProfile.profilePhoto})}"
+             th:width="32px"
+             th:height="32px"/>
+        <span th:text="${message.sendUser.username == #authentication.name?'You:':message.sendUser.username}"></span>
         <span th:text="${#dates.format(message.createTime,'yyyy-MM-dd HH:mm:ss')}"></span>
         <div th:utext="${message.content}"></div>
     </div>

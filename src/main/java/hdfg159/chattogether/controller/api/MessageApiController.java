@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 
@@ -40,14 +39,11 @@ public class MessageApiController {
 	@Secured(USER)
 	@PostMapping("/save")
 	@ResponseStatus(CREATED)
-	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetails, @Valid ChatMessageFormVO chatMessageFormVO, Errors errors, UriComponentsBuilder ucb) {
+	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetails, @Valid ChatMessageFormVO chatMessageFormVO, Errors errors) {
 		if (errors.hasErrors()) {
 			return responseFail(errors);
 		}
-		String uri = ucb
-				.path("/message/chat/")
-				.path(userDetails.getUsername())
-				.toUriString();
+		String uri = "message/chat/" + userDetails.getUsername();
 		ChatMessageAO chatMessageAO = ChatMessageAO.builder()
 				.uri(uri)
 				.receiveUsername(chatMessageFormVO.getReceiveUsername())

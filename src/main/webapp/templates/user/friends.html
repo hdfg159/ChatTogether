@@ -6,7 +6,7 @@
     <title>User Friend</title>
     <script th:inline="javascript">
         function deleteUserFriend(username) {
-            $.getJSON('[(${#servletContext.contextPath})]/userfriend/api/delete', {
+            $.getJSON('[(@{/userfriend/api/delete})]', {
                 'username': username
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
@@ -28,6 +28,8 @@
         <tr th:each="userFriend:${userFriendPage}">
             <td th:text="${userFriend.passiveUser.id}">id</td>
             <td>
+                <img th:src="@{/{profilePhoto}(profilePhoto=${userFriend.passiveUser.userProfile.profilePhoto})}"
+                     th:width="32px" th:height="32px"/>
                 <a href="#"
                    th:href=" ${#servletContext.contextPath}+'/userprofile/details/'+${userFriend.passiveUser.username}"
                    th:text="${userFriend.passiveUser.username}"></a>

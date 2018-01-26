@@ -55,6 +55,9 @@ public class UserProfile {
 	@Column(name = "email")
 	private String email;
 	
+	@Column(name = "profile_photo")
+	private String profilePhoto;
+	
 	@Column(name = "self_introduction", length = 50)
 	private String selfIntroduction;
 	

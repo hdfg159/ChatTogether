@@ -12,6 +12,7 @@ import hdfg159.chattogether.exception.MicroWordCommentNotFoundException;
 import hdfg159.chattogether.exception.UserNotFoundException;
 import hdfg159.chattogether.service.MicroWordCommentReplyService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +53,9 @@ public class MicroWordCommentReplyServiceImpl implements MicroWordCommentReplySe
 		MicroWordCommentReply microWordCommentReply = buildSaveMicroWordCommentReply(content, microWordComment, replyUser, repliedUser);
 		microWordCommentReplyRepository.save(microWordCommentReply);
 		
+		if (StringUtils.equals(replyUser.getUsername(), repliedUser.getUsername())) {
+			return true;
+		}
 		messageNotificationRepository.save(buildSaveMessageNotification(url, repliedUser, replyUser));
 		return true;
 	}

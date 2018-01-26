@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
 
@@ -40,13 +39,11 @@ public class MicroWordCommentReplyApiController {
 	@Secured(USER)
 	@PostMapping("/save")
 	@ResponseStatus(CREATED)
-	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetail, @Valid ReplyFormVO replyFormVO, Errors errors, UriComponentsBuilder ucb) {
+	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetail, @Valid ReplyFormVO replyFormVO, Errors errors) {
 		if (errors.hasErrors()) {
 			return ResponseUtils.responseFail(errors);
 		}
-		String uri = ucb.path("/microword/details/")
-				.path(String.valueOf(replyFormVO.getMicroWordId()))
-				.toUriString();
+		String uri = "microword/details/" + String.valueOf(replyFormVO.getMicroWordId());
 		microWordCommentReplyService.save(replyFormVO.getMicrowordCommentId(), userDetail.getUsername(), replyFormVO.getRepliedUserId(), replyFormVO.getContent(), uri);
 		return ResponseUtils.responseSuccess();
 	}

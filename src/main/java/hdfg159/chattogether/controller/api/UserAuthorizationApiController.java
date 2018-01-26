@@ -3,7 +3,6 @@ package hdfg159.chattogether.controller.api;
 import hdfg159.chattogether.domain.dto.BaseJsonObject;
 import hdfg159.chattogether.domain.vo.UserAuthorizationFormVO;
 import hdfg159.chattogether.service.UserAuthorizationService;
-import hdfg159.chattogether.util.ResponseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import static hdfg159.chattogether.constant.RoleConsts.ADMIN_USER;
+import static hdfg159.chattogether.util.ResponseUtils.responseSuccess;
 import static org.springframework.http.HttpStatus.CREATED;
 
 /**
@@ -34,6 +34,6 @@ public class UserAuthorizationApiController {
 	@ResponseStatus(CREATED)
 	public BaseJsonObject<?> save(UserAuthorizationFormVO userAuthorizationFormVO) {
 		userAuthorizationService.save(userAuthorizationFormVO);
-		return ResponseUtils.responseSuccess();
+		return responseSuccess();
 	}
 }

@@ -10,7 +10,7 @@
     <div sec:authorize="isAuthenticated()">
         <script th:inline="javascript">
             function getNoticeCount() {
-                $.getJSON('[(${#servletContext.contextPath})]/messagenotification/api/count', {}, function () {
+                $.getJSON('[(@{/messagenotification/api/count})]', {}, function () {
                 }).done(function (data, textStatus, jqXHR) {
                     if (data !== null) {
                         $('#notice_count').text('Message:' + data.data);
@@ -44,7 +44,9 @@
 </header>
 
 <footer th:fragment="footer">
+    <link rel="stylesheet" th:type="'text/css'" th:href="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.css}">
     <script th:src="@{/webjars/jquery/3.2.1/jquery.min.js}"></script>
+    <script th:src="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.js}"></script>
     <script th:src="@{/resources/js/app.js}"></script>
     <th:block sec:authorize="isAuthenticated()">
         <script>

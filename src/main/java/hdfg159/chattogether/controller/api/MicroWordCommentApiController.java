@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import static hdfg159.chattogether.constant.RoleConsts.USER;
 import static hdfg159.chattogether.util.ResponseUtils.responseSuccess;
@@ -35,10 +34,11 @@ public class MicroWordCommentApiController {
 	@Secured(USER)
 	@PostMapping("/save")
 	@ResponseStatus(CREATED)
-	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetail, Long microWordId, String content, UriComponentsBuilder ucb) {
-		String uri = ucb.path("/microword/details/")
-				.path(String.valueOf(microWordId))
-				.toUriString();
+	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetail, Long microWordId, String content) {
+//		String uri = ucb.path("/microword/details/")
+//				.path(String.valueOf(microWordId))
+//				.toUriString();
+		String uri = "microword/details/" + String.valueOf(microWordId);
 		microWordCommentService.save(userDetail.getUsername(), microWordId, content, uri);
 		return responseSuccess();
 	}

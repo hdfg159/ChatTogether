@@ -5,7 +5,7 @@
     <title>Authorize</title>
     <script th:inline="javascript">
         function saveUserAuthentication() {
-            $.post('[(${#servletContext.contextPath})]/userauthorization/api/save', $('#userAuthenticationForm').serialize(), function () {
+            $.post('[(@{/userauthorization/api/save})]', $('#userAuthenticationForm').serialize(), function () {
             }).done(function (data, textStatus, jqXHR) {
                 alert('Success!');
             }).fail(function (jqXHR, textStatus, errorThrown) {

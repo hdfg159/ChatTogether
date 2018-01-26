@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import static hdfg159.chattogether.constant.RoleConsts.USER;
 import static hdfg159.chattogether.util.ResponseUtils.responseSuccess;
@@ -40,10 +39,8 @@ public class UserFriendApiController {
 	
 	@Secured(USER)
 	@GetMapping("/addfriend")
-	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetails, User user, UriComponentsBuilder ucb) {
-		String uri = ucb.path("/userfriend/api/accept/")
-				.path(userDetails.getUsername())
-				.toUriString();
+	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetails, User user) {
+		String uri = "userfriend/api/accept/" + userDetails.getUsername();
 		userFriendService.buildFriend(userDetails.getUsername(), user.getUsername(), uri);
 		return responseSuccess();
 	}

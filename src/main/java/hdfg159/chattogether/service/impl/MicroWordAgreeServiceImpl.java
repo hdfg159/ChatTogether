@@ -13,6 +13,7 @@ import hdfg159.chattogether.exception.MicroWordNotFoundException;
 import hdfg159.chattogether.exception.UserNotFoundException;
 import hdfg159.chattogether.service.MicroWordAgreeService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +55,9 @@ public class MicroWordAgreeServiceImpl implements MicroWordAgreeService {
 		MicroWordAgree saveMicroWordAgree = microWordAgreeRepository.save(buildMicroWordAgree(findUser, findMicroWord));
 		
 		//save agree notification
+		if (StringUtils.equals(username, findMicroWord.getUser().getUsername())) {
+			return true;
+		}
 		MessageNotification agreeNotification = buildAgreeNotification(uri, saveMicroWordAgree);
 		messageNotificationRepository.save(agreeNotification);
 		return true;

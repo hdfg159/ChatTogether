@@ -6,7 +6,7 @@
     <title>User Manager</title>
     <script th:inline="javascript">
         function deleteUser(userId) {
-            $.getJSON('[(${#servletContext.contextPath})]/user/api/delete', {
+            $.getJSON('[(@{/user/api/delete})]', {
                 'id': userId
             }, function () {
             }).done(function () {
@@ -16,7 +16,7 @@
         }
 
         function reset(username) {
-            $.getJSON('[(${#servletContext.contextPath})]/user/api/reset', {
+            $.getJSON('[(@{/user/api/reset})]', {
                 'username': username
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
@@ -27,7 +27,7 @@
         }
 
         function switchUserAccountState(id) {
-            $.getJSON('[(${#servletContext.contextPath})]/user/api/switchState', {
+            $.getJSON('[(@{/user/api/switchState})]', {
                 'id': id
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
@@ -56,8 +56,13 @@
     </tr>
     <tr th:each="user:${users}" th:if="${#authentication.name != user.username}">
         <td><span th:text="${user.id}">UserId</span></td>
-        <td><a th:text="${user.username}"
-               th:href="${#servletContext.contextPath}+'/userprofile/details/'+${user.username}">Username</a></td>
+        <td>
+            <img th:src="@{/{profilePhoto}(profilePhoto=${user.userProfile.profilePhoto})}"
+                 th:width="32px"
+                 th:height="32px"/>
+            <a th:text="${user.username}"
+               th:href="@{/userprofile/details/{username}(username=${user.username})}">Username</a>
+        </td>
         <td>
             <div th:each="authentication:${user.userAuthorizations}" th:unless="${user.userAuthorizations== null}">
                 <span th:text="${authentication.userPermission.roleName}">
