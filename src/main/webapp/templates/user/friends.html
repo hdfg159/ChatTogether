@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>User Friend</title>
+    <th:block th:replace="template::generalAsset">
+    </th:block>
     <script th:inline="javascript">
         function deleteUserFriend(username) {
             $.getJSON('[(@{/userfriend/api/delete})]', {

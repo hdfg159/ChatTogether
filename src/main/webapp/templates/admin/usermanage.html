@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>User Manager</title>
+    <th:block th:replace="template::generalAsset">
+    </th:block>
     <script th:inline="javascript">
         function deleteUser(userId) {
             $.getJSON('[(@{/user/api/delete})]', {
@@ -31,7 +33,7 @@
                 'id': id
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
-                var switchState = $('#switchState');
+                var switchState = $('#switchState_' + id);
                 if (switchState.val() === 'Disable') {
                     switchState.val('Enable');
                     return;
@@ -87,7 +89,7 @@
             <input type="button"
                    th:onclick="'switchUserAccountState('+${user.id}+');'"
                    th:value="${user.getUserAccountState().getIsEnabled()==0?'Enable':'Disable'}"
-                   th:id="'switchState'"/>
+                   th:id="'switchState_'+${user.id}"/>
         </td>
     </tr>
     </tbody>

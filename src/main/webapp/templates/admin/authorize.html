@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Authorize</title>
+    <th:block th:replace="template::generalAsset">
+    </th:block>
     <script th:inline="javascript">
         function saveUserAuthentication() {
             $.post('[(@{/userauthorization/api/save})]', $('#userAuthenticationForm').serialize(), function () {

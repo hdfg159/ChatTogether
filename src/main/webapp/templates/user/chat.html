@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Chat With User</title>
+    <th:block th:replace="template::editorAsset">
+    </th:block>
     <script th:inline="javascript">
         function submitChatMessageForm() {
             let reg = /\<p\>\<br\>\<\/p\>/g;
@@ -12,36 +14,37 @@
             })
                 .done(function (data, textStatus, jqXHR) {
                     if (data !== null) {
-                        editor.$txt.html('<p><br></p>');
+                        $('.emojionearea-editor').html('');
                         var date = timeStampToString(data.data.createTime);
                         $('#head')
-                            .prepend("<div style='border: dotted;'>You:" + date + "<div>" + data.data.content + "</div></div>");
+                            .prepend("<div style='border: dotted;'>You:" + date + "<div>" + emojione.toImage(data.data.content) + "</div></div>");
                     }
                 }).fail(function (jqXHR, textStatus, errorThrown) {
                 alert('Request Error!' + errorThrown);
             });
         }
     </script>
-    <th:block th:replace="template::editorCss"></th:block>
 </head>
 <body>
 <div th:replace="template::header"></div>
 <br/>
-<script th:src="@{/webjars/jquery/3.2.1/jquery.min.js}"></script>
-<script th:src="@{/webjars/wangEditor/2.1.22/dist/js/wangEditor.min.js}"></script>
 <form action="#" th:action="@{/}" th:method="post" th:id="'chatMessageForm'">
-    <textarea id="chatMessageTextarea" name="content" th:style="'height:200px'"></textarea>
+    <textarea id="chatMessageTextarea" name="content"></textarea>
     <input type="hidden" th:value="${chatUsername}" name="receiveUsername"/>
 </form>
 <input type="button" th:value="'Send'" onclick="submitChatMessageForm();"/>
 <script type="text/javascript">
-    var e = document.getElementById('chatMessageTextarea');
-    var editor = new wangEditor(e);
-    editor.config.menus = [
-        'link', 'emotion', '|', 'undo', 'redo', 'fullscreen'
-    ];
-    editor.config.pasteText = true;
-    editor.create();
+    $(document).ready(function () {
+        $('#chatMessageTextarea').emojioneArea({
+            placeholder: '请输入内容',
+            buttonTitle: '按TAB键选择表情',
+            pickerPosition: 'buttom',
+            saveEmojisAs: 'shortname',
+            recentEmojis: false,
+            autocomplete: true,
+            tonesStyle: 'square'
+        });
+    })
 </script>
 <div id="head"></div>
 <th:block th:each="message:${messages}">
@@ -51,7 +54,7 @@
              th:height="32px"/>
         <span th:text="${message.sendUser.username == #authentication.name?'You:':message.sendUser.username}"></span>
         <span th:text="${#dates.format(message.createTime,'yyyy-MM-dd HH:mm:ss')}"></span>
-        <div th:utext="${message.content}"></div>
+        <div class="convert-emoji" th:utext="${message.content}"></div>
     </div>
 </th:block>
 <div>

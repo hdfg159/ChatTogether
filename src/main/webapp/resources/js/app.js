@@ -36,3 +36,11 @@ function timeStampToString(time) {
     var mseconds = datetime.getMilliseconds();
     return year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
 }
+
+$(document).ready(function () {
+    $('.convert-emoji').each(function () {
+        var original = $(this).html();
+        var converted = emojione.toImage(original);
+        $(this).html(converted);
+    });
+});

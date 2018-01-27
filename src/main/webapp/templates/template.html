@@ -21,6 +21,8 @@
                     alert('Request Error!' + errorThrown);
                 });
             }
+
+            getNoticeCount();
         </script>
         <form action="#" th:action="@{/logout}" th:method="post">
             <span sec:authentication="name"></span>
@@ -43,20 +45,26 @@
     </div>
 </header>
 
-<footer th:fragment="footer">
+<th:block th:fragment="editorAsset">
+    <link rel="stylesheet" th:type="'text/css'" th:href="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.css}">
+    <link rel="stylesheet" th:href="@{/resources/css/emojionearea.min.css}"/>
+    <link rel="stylesheet" th:href="@{/resources/css/emojione.min.css}"/>
+    <script th:src="@{/webjars/jquery/3.2.1/jquery.min.js}"></script>
+    <script th:src="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.js}"></script>
+    <script th:src="@{/resources/js/emojione.min.js}"></script>
+    <script th:src="@{/resources/js/emojionearea.min.js}"></script>
+    <script th:src="@{/resources/js/app.js}"></script>
+</th:block>
+
+<th:block th:fragment="generalAsset">
     <link rel="stylesheet" th:type="'text/css'" th:href="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.css}">
     <script th:src="@{/webjars/jquery/3.2.1/jquery.min.js}"></script>
     <script th:src="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.js}"></script>
     <script th:src="@{/resources/js/app.js}"></script>
-    <th:block sec:authorize="isAuthenticated()">
-        <script>
-            getNoticeCount();
-        </script>
-    </th:block>
+</th:block>
+
+<footer th:fragment="footer">
 </footer>
 
-<th:block th:fragment="editorCss">
-    <link rel="stylesheet" th:type="'text/css'" th:href="@{/webjars/wangEditor/2.1.22/dist/css/wangEditor.min.css}">
-</th:block>
 </body>
 </html>

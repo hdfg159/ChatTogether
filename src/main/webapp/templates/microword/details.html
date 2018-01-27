@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>MicroWord Details</title>
-    <th:block th:replace="template::editorCss"></th:block>
+    <th:block th:replace="template::editorAsset">
+    </th:block>
     <script th:inline="javascript">
         function agreeMicroWordDetail(microWordId) {
             var btn_agree = $('#btnagree');
@@ -56,7 +57,7 @@
             $('#replyArea').css('display', 'block');
             $('#microwordCommentId').val(microwordCommentId);
             $('#repliedUserId').val(repliedUserId);
-            $('#commentReplyContent').attr('placeholder', 'To ' + repliedUserName);
+//            $('.focused').attr('placeholder', 'To ' + repliedUserName);
             $(window).scrollTop($('#commentReplyForm').offset().top);
         }
 
@@ -97,112 +98,116 @@
 <div th:replace="template::header"></div>
 <h3>MicroWord Details</h3>
 <span th:text="'User:'"></span>
-<img th:src="@{/{profilePhoto}(profilePhoto=${microWordDetailVO.microWord.user.userProfile.profilePhoto})}"
+<img src=""
+     th:src="@{/{profilePhoto}(profilePhoto=${microWordDetailVO.microWord.user.userProfile.profilePhoto})}"
      th:width="32px"
      th:height="32px"/>
-<span th:text="${microWordDetailVO.microWord.user.username}">微说用户名</span>
-<div th:text="'Date:'+${#dates.format(microWordDetailVO.microWord.createTime,'yyyy-MM-dd HH:mm:ss')}">微说日期</div>
-<div th:utext="'Content:'+${microWordDetailVO.microWord.content}">微说内容</div>
+<span th:text="${microWordDetailVO.microWord.user.username}"></span>
+<div th:text="'Date:'+${#dates.format(microWordDetailVO.microWord.createTime,'yyyy-MM-dd HH:mm:ss')}">
+</div>
+<div class="convert-emoji" th:utext="'Content:'+${microWordDetailVO.microWord.content}">微说内容</div>
 <span th:text="'Agree:'"></span>
-<input type="button" th:id="'btnagree'" th:value="${#lists.size(microWordDetailVO.microWord.microWordAgrees)}"
+<input type="button"
+       th:id="'btnagree'"
+       th:value="${#lists.size(microWordDetailVO.microWord.microWordAgrees)}"
        th:onclick="'agreeMicroWordDetail('+${microWordDetailVO.microWord.id}+')'"/>
-<input type="button" th:value="'Delete'" th:onclick="'deleteMicroWordDetail('+${microWordDetailVO.microWord.id}+')'"
+<input type="button"
+       th:value="'Delete'"
+       th:onclick="'deleteMicroWordDetail('+${microWordDetailVO.microWord.id}+')'"
        th:if="${#authentication.name == microWordDetailVO.microWord.user.username or #authorization.expression('hasRole(''ROLE_ADMIN_MICROWORD'') or hasRole(''ROLE_ADMIN'')')}"/>
 <br/>
+
 <div sec:authorize="isAuthenticated()">
     <form id="commentForm" th:action="@{/microwordcomment/api/save}" method="post">
         <input type="hidden" th:name="'microWordId'" th:value="${microWordDetailVO.microWord.id}"/>
         <textarea id="commentContent" th:name="'content'"></textarea>
     </form>
-    <button th:type="button" th:text="'ok'" id="btnSendComment"></button>
-    <script th:src="@{/webjars/jquery/3.2.1/jquery.min.js}"></script>
-    <script th:src="@{/webjars/wangEditor/2.1.22/dist/js/wangEditor.min.js}"></script>
+    <button th:type="button" th:text="'ok'" id="btnSendComment" th:onclick="'submitComment();'"></button>
     <script type="text/javascript">
-        function initEditor() {
-            var e = document.getElementById('commentContent');
-            var editor = new wangEditor(e);
-            editor.config.menus = [
-                'link', 'emotion', '|', 'undo', 'redo', 'fullscreen'
-            ];
-            editor.create();
-        }
-
-        function initButton() {
-            $('#btnSendComment').click(function (event) {
-                submitComment();
+        $(document).ready(function () {
+            $('#commentContent').emojioneArea({
+                placeholder: '既然看了就回复一下嘛~',
+                buttonTitle: '按TAB键选择表情',
+                pickerPosition: 'buttom',
+                saveEmojisAs: 'shortname',
+                recentEmojis: false,
+                autocomplete: true,
+                tonesStyle: 'square'
             });
-        }
-    </script>
-    <script type="text/javascript">
-        initEditor();
-        initButton();
+        })
     </script>
 </div>
 <br>
+
 <div th:each="microWordComment:${microWordDetailVO.getMicroWordCommentPage()}" style="border: dashed">
-    <img th:src="@{/{profilePhoto}(profilePhoto=${microWordComment.commentUser.userProfile.profilePhoto})}"
+    <img src=""
+         th:src="@{/{profilePhoto}(profilePhoto=${microWordComment.commentUser.userProfile.profilePhoto})}"
          th:width="32px"
          th:height="32px"/>
     <a th:text="${microWordComment.commentUser.username}"
        th:href="@{/userprofile/details/{username}(username=${microWordComment.commentUser.username})}">
     </a>
     <span th:text="' Date:'+${#dates.format(microWordComment.createTime,'yy-MM-dd HH:mm:ss')}"></span>
-    <input type="button" value="Delete" th:onclick="'deleteMicroWordComment('+${microWordComment.id}+')'"
+    <input type="button" value="Delete"
+           th:onclick="'deleteMicroWordComment('+${microWordComment.id}+')'"
            th:if="${#authentication.name == microWordComment.commentUser.username or #authorization.expression('hasAnyRole(''ROLE_ADMIN_COMMENT'')')}"/>
-    <input type="button" value="Reply" sec:authorize="isAuthenticated()"
+    <input type="button"
+           value="Reply"
+           sec:authorize="isAuthenticated()"
            th:onclick="'replyComment('+${microWordComment.id}+','+${microWordComment.commentUser.id}+','+'\''+${microWordComment.commentUser.username}+'\''+')'"/>
-    <div th:utext="${microWordComment.content}"></div>
+    <div class="convert-emoji" th:utext="${microWordComment.content}"></div>
     <ul>
         <li th:each="microWordCommentReply:${microWordComment.getMicroWordCommentReplies()}">
-            <img th:src="@{/{profilePhoto}(profilePhoto=${microWordCommentReply.repliedUser.userProfile.profilePhoto})}"
+            <img src=""
+                 th:src="@{/{profilePhoto}(profilePhoto=${microWordCommentReply.repliedUser.userProfile.profilePhoto})}"
                  th:width="32px"
                  th:height="32px"/>
             <a th:href="@{/userprofile/details/{username}(username=${microWordComment.commentUser.username})}"
                th:text="${microWordCommentReply.repliedUser.username}"></a>
             <span th:text="' To '"></span>
-            <img th:src="@{/{profilePhoto}(profilePhoto=${microWordCommentReply.replyUser.userProfile.profilePhoto})}"
+            <img src=""
+                 th:src="@{/{profilePhoto}(profilePhoto=${microWordCommentReply.replyUser.userProfile.profilePhoto})}"
                  th:width="32px"
                  th:height="32px"/>
             <a th:href="@{/userprofile/details/{username}(username=${microWordComment.commentUser.username})}"
                th:text="${microWordCommentReply.replyUser.username}"></a>
             <span th:text="' Date:'+${#dates.format(microWordCommentReply.createTime,'yy-MM-dd HH:mm:ss')}"></span>
-            <input type="button" value="Delete"
+            <input type="button"
+                   value="Delete"
                    th:if="${#authentication.name == microWordCommentReply.replyUser.username or #authorization.expression('hasAnyRole(''ROLE_ADMIN_COMMENT'')')}"
                    th:onclick="'deleteMicroWordCommentReply('+${microWordCommentReply.id}+')'"/>
-            <input type="button" sec:authorize="isAuthenticated()" value="Reply"
+            <input type="button"
+                   sec:authorize="isAuthenticated()"
+                   value="Reply"
                    th:onclick="'replyComment('+${microWordComment.id}+','+${microWordCommentReply.replyUser.id}+','+'\''+${microWordCommentReply.replyUser.username}+'\''+')'"/>
-            <div th:utext="${microWordCommentReply.content}"></div>
+            <div class="convert-emoji"
+                 th:utext="${microWordCommentReply.content}">
+            </div>
         </li>
     </ul>
 </div>
 
 <div sec:authorize="isAuthenticated()" style="display: none;" id="replyArea">
+    <br/>
     <form id="commentReplyForm" th:action="@{/microwordcommentreply/api}" method="post">
         <input type="hidden" th:name="'microWordId'" th:value="${microWordDetailVO.microWord.id}"/>
         <input type="hidden" th:name="'microwordCommentId'" id="microwordCommentId"/>
         <input type="hidden" th:name="'repliedUserId'" id="repliedUserId">
         <textarea id="commentReplyContent" th:name="'content'"></textarea>
     </form>
-    <button th:type="button" th:text="'ok'" id="btnSendCommentReply"></button>
+    <button th:type="button" th:text="'ok'" id="btnSendCommentReply" th:onclick="'submitReplyComment();'"></button>
     <script type="text/javascript">
-        function initReplyEditor() {
-            var e = document.getElementById('commentReplyContent');
-            var editor = new wangEditor(e);
-            editor.config.menus = [
-                'link', 'emotion', '|', 'undo', 'redo', 'fullscreen'
-            ];
-            editor.create();
-        }
-
-        function initReplyButton() {
-            $('#btnSendCommentReply').click(function (event) {
-                submitReplyComment();
+        $(document).ready(function () {
+            $('#commentReplyContent').emojioneArea({
+                placeholder: '回复:',
+                buttonTitle: '按TAB键选择表情',
+                pickerPosition: 'top',
+                saveEmojisAs: 'shortname',
+                recentEmojis: false,
+                autocomplete: true,
+                tonesStyle: 'square'
             });
-        }
-    </script>
-    <script type="text/javascript">
-        initReplyEditor();
-        initReplyButton();
+        })
     </script>
 </div>
 
@@ -224,7 +229,6 @@
     <a th:unless="${microWordDetailVO.microWordCommentPage.number + 1== microWordDetailVO.microWordCommentPage.totalPages}"
        th:href="@{/microword/details/{microWordId}(microWordId=${microWordDetailVO.microWord.id},page=${microWordDetailVO.microWordCommentPage.number+1})}"
        th:text="'Next'">下一页</a>
-    <br/>
     <span th:text="'Page Displays Elements Count:'+${microWordDetailVO.microWordCommentPage.numberOfElements}+'/'">页面显示数据量</span>
     <span th:text="'All Elements Count:'+${microWordDetailVO.microWordCommentPage.totalElements}">总数据量</span>
 </div>

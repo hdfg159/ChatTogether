@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>User's Notifications</title>
+    <th:block th:replace="template::generalAsset">
+    </th:block>
     <script th:inline="javascript">
         function markNotificationsAsRead() {
             $.getJSON('[(@{/messagenotification/api/markread})]', {}, function () {
@@ -53,9 +55,16 @@
     <th:block th:each="notification:${notifications}" th:unless="${notifications == null}">
         <tr>
             <td th:text="${#dates.format(notification.modifiedTime,'yyyy-MM-dd HH:mm:ss')}"></td>
-            <td th:text="${notification.sendNotificationUser.username}"></td>
+            <td><img
+                    th:src="@{/{profilePhoto}(profilePhoto=${notification.sendNotificationUser.userProfile.profilePhoto})}"
+                    th:width="32px"
+                    th:height="32px"/>
+                <a th:href="@{/userprofile/details/{username}(username=${notification.sendNotificationUser.username})}"
+                   th:text="${notification.sendNotificationUser.username}"></a>
+            </td>
             <td>
-                <a href="javascript:void(0);" th:text="${notification.content}"
+                <a href="javascript:void(0);"
+                   th:text="${notification.content}"
                    th:onclick="'markNotificationAsRead('+${notification.id}+',\''+@{/{url}(url=${notification.url})}+'\','+${notification.isRead}+');'"></a>
             </td>
             <td>
@@ -65,7 +74,8 @@
     </th:block>
 </table>
 <div th:with="queryStringWithoutPage=${#strings.substringBefore(#httpServletRequest.queryString,'&page')},queryString=${#httpServletRequest.queryString}">
-    <form th:action="@{/notification/shownotifications}" method="get"
+    <form th:action="@{/notification/shownotifications}"
+          method="get"
           th:onsubmit="'return pageFormSubmit()'">
         <span th:text="${notifications.number+1}">页</span>
         <span th:text="'/'">/</span>

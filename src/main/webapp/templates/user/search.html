@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Search User</title>
+    <th:block th:replace="template::generalAsset">
+    </th:block>
 </head>
 <body>
 <div th:replace="template::header"></div>
@@ -10,13 +12,15 @@
     <table>
         <tbody>
         <tr>
-            <th th:text="'UserId'"></th>
             <th th:text="'Username'"></th>
         </tr>
         <th:block th:each="user : ${users}">
             <tr>
-                <td th:text="${user.id}"></td>
-                <td><a href="#" th:href="@{/userprofile/details/{username}(username=${user.username})}"
+                <td>
+                    <img th:src="@{/{profilePhoto}(profilePhoto=${user.userProfile.profilePhoto})}"
+                         th:width="32px"
+                         th:height="32px"/>
+                    <a href="#" th:href="@{/userprofile/details/{username}(username=${user.username})}"
                        th:text="${user.username}"></a></td>
             </tr>
         </th:block>

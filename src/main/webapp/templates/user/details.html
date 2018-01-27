@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>UserDetails</title>
+    <th:block th:replace="template::generalAsset">
+    </th:block>
     <script th:inline="javascript">
         function submitUserProfileForm() {
             $('#birthday').val(new Date(Date.parse($('#birthdaySource').val())));
