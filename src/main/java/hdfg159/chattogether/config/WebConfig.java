@@ -3,6 +3,7 @@ package hdfg159.chattogether.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor;
@@ -23,6 +24,16 @@ import java.util.List;
 @EnableSpringDataWebSupport
 @ComponentScan(basePackages = "hdfg159.chattogether")
 public class WebConfig extends WebMvcConfigurerAdapter {
+	/**
+	 * Using @Value("${...}")
+	 *
+	 * @return
+	 */
+	@Bean
+	public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+		return new PropertySourcesPlaceholderConfigurer();
+	}
+	
 	@Override
 	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
 		configurer.enable();
