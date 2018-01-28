@@ -39,10 +39,6 @@
             });
         }
 
-        function getObjectURL(file) {
-            return window.URL.createObjectURL(file);
-        }
-
         function inputProfilePhoto(cut_img) {
             var img_cropper = $('#img_cropper');
             img_cropper.attr('src', getObjectURL(cut_img.files[0]));

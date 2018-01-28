@@ -1,6 +1,7 @@
 package hdfg159.chattogether.service;
 
 import hdfg159.chattogether.domain.MicroWord;
+import hdfg159.chattogether.domain.ao.MicroWordAO;
 import hdfg159.chattogether.domain.vo.MicroWordDetailVO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,14 +45,12 @@ public interface MicroWordService {
 	/**
 	 * 保存微说
 	 *
-	 * @param username
-	 * 		发表微说的用户名
-	 * @param microWord
-	 * 		微说
+	 * @param microWordAO
+	 * 		微说AO类
 	 *
 	 * @return boolean 是否成功
 	 */
-	boolean save(String username, MicroWord microWord);
+	boolean save(MicroWordAO microWordAO);
 	
 	/**
 	 * 根据微说内容模糊查找

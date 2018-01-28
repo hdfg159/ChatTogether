@@ -8,18 +8,27 @@
     </th:block>
     <script th:inline="javascript">
         function submitMicroWordForm() {
-            let reg = /\<p\>\<br\>\<\/p\>/g;
             var microWordContentSelector = $('#microWordContent');
-            microWordContentSelector.val(microWordContentSelector.val().replace(reg, ''));
             if (microWordContentSelector.val().length > 200) {
                 alert('Data too long...');
                 return;
             }
-            $.post('[(@{/microword/api/save})]', $('#microWordForm').serialize(), function () {
-            }).done(function (data, textStatus, jqXHR) {
-                history.go(0);
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('保存失败!');
+            microWordContentSelector.val(tranferStringLine(microWordContentSelector.val()));
+            $.ajax('[(@{/microword/api/save})]', {
+                method: "POST",
+                data: new FormData($("#microWordForm")[0]),
+                processData: false,
+                contentType: false,
+                success: function (data, textStatus, jqXHR) {
+                    if (data.code === 0) {
+                        alert(data.data);
+                        return;
+                    }
+                    history.go(0);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('保存失败!');
+                }
             });
         }
 
@@ -55,6 +64,32 @@
                 alert('您已经点赞过!不能再操作哦~');
             });
         }
+
+        function uploadPicture(inputPicture) {
+            var imgId = '#' + inputPicture.parentNode.id + '_img';
+            var pictureName = $(inputPicture).val();
+            var ext = pictureName.substring(pictureName.lastIndexOf("."), pictureName.length).toUpperCase();
+            if (ext !== '.PNG' && ext !== '.JPG' && ext !== '.JPEG') {
+                $(inputPicture).val('');
+                $(imgId).html('');
+                alert('不支持该文件格式');
+                return;
+            }
+            if (inputPicture.files[0].size > 5 * 1024 * 1024) {
+                $(inputPicture).val('');
+                $(imgId).html('');
+                alert('单个图片不能大于5MB');
+                return;
+            }
+            $(imgId).html('<img width="256px" height="256px" src="' + getObjectURL(inputPicture.files[0]) + '" />');
+        }
+
+        function clearImg(button) {
+            var fileId = '#' + button.parentNode.id;
+            var imgId = '#' + button.parentNode.id + '_img';
+            $(imgId).html('');
+            $(fileId).find('input').val('');
+        }
     </script>
 </head>
 <body>
@@ -73,19 +108,74 @@
 
 <div sec:authorize="isAuthenticated()" th:fragment="microWordForm">
     <h3 th:text="'Micro Word'">Theme</h3>
-    <form id="microWordForm" th:action="@{/microword/save}" th:method="post">
+    <form id="microWordForm"
+          th:action="@{/microword/save}"
+          th:method="'post'">
         <textarea name="content" id="microWordContent"></textarea>
+        <table>
+            <tr>
+                <td th:id="'uploadfile1'">
+                    <button type="button"
+                            onclick="clearImg(this);"
+                            th:text="'Clear'"></button>
+                    <input type="file"
+                           th:name="'pictures'"
+                           accept=".png,.jpg,.jpeg"
+                           onchange="uploadPicture(this);"/>
+                </td>
+                <td th:id="'uploadfile2'">
+                    <button type="button"
+                            onclick="clearImg(this);"
+                            th:text="'Clear'"></button>
+                    <input type="file"
+                           th:name="'pictures'"
+                           accept=".png,.jpg,.jpeg"
+                           onchange="uploadPicture(this);"/>
+                </td>
+                <td th:id="'uploadfile3'">
+                    <button type="button"
+                            onclick="clearImg(this);"
+                            th:text="'Clear'"></button>
+                    <input type="file"
+                           th:name="'pictures'"
+                           accept=".png,.jpg,.jpeg"
+                           onchange="uploadPicture(this);"/>
+                </td>
+                <td th:id="'uploadfile4'">
+                    <button type="button"
+                            onclick="clearImg(this);"
+                            th:text="'Clear'"></button>
+                    <input type="file"
+                           th:name="'pictures'"
+                           accept=".png,.jpg,.jpeg"
+                           onchange="uploadPicture(this);"/>
+                </td>
+                <td>
+                    <button type="button"
+                            id="btnsendmicroword"
+                            th:text="OK"
+                            th:onclick="'submitMicroWordForm();'">
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td id="uploadfile1_img"></td>
+                <td id="uploadfile2_img"></td>
+                <td id="uploadfile3_img"></td>
+                <td id="uploadfile4_img"></td>
+            </tr>
+        </table>
     </form>
-    <button type="button" id="btnsendmicroword" th:text="ok" th:onclick="'submitMicroWordForm();'"></button>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $('#microWordContent').emojioneArea({
-                placeholder: '输入微说内容',
+                placeholder: '输入微说内容(图片上传不能超过5M/张)',
                 buttonTitle: '按TAB键选择表情',
                 pickerPosition: 'bottom',
                 saveEmojisAs: 'shortname',
                 recentEmojis: false,
-                autocomplete: true,
+                autocomplete: false,
                 filtersPosition: 'bottom',
                 tonesStyle: 'square'
             });
@@ -107,7 +197,8 @@
     <div th:each="microWord:${microWords}" style="border: dashed">
         <input type="checkbox" name="microWordIds" th:value="${microWord.id}"
                sec:authorize="hasAnyRole('ROLE_ADMIN_MICROWORD')"/>
-        <img th:src="@{/{profilePhoto}(profilePhoto=${microWord.user.userProfile.profilePhoto})}"
+        <img src=""
+             th:src="@{/{profilePhoto}(profilePhoto=${microWord.user.userProfile.profilePhoto})}"
              th:width="32px"
              th:height="32px"/>
         <a th:text="${microWord.user.username}"
@@ -117,7 +208,15 @@
         <input th:type="button"
                th:if="${#authentication.name == microWord.user.username or #authorization.expression('hasAnyRole(''ROLE_ADMIN_MICROWORD'')')}"
                th:onclick="'deleteMicroWord('+${microWord.id}+')'" th:value="'Delete'"/>
-        <div class="convert-emoji" th:utext="${microWord.content}"></div>
+        <p class="convert-emoji" th:utext="${microWord.content}"></p>
+        <a th:each="microWordAttachment:${microWord.microWordAttachments}"
+           th:href="@{/{pictureUrl}(pictureUrl=${microWordAttachment.url})}">
+            <img src=""
+                 width="128px"
+                 height="128px"
+                 th:src="@{/{pictureUrl}(pictureUrl=${microWordAttachment.url})}"/>
+        </a>
+        <br/>
         <span th:text="'Comment:'+${#lists.size(microWord.microWordComments)}"></span>
         <span th:text="' | Agree:'"></span>
         <input type="button" th:id="'microWordId_agree_'+${microWord.id}"

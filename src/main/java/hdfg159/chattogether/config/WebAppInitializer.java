@@ -32,7 +32,7 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
 	@Override
 	protected void customizeRegistration(ServletRegistration.Dynamic registration) {
 		//set location empty
-		registration.setMultipartConfig(new MultipartConfigElement("", 10485760, 15728640, 0));
+		registration.setMultipartConfig(new MultipartConfigElement("", 5242880, 22020096, 0));
 	}
 	
 	/**

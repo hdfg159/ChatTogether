@@ -7,9 +7,8 @@
     </th:block>
     <script th:inline="javascript">
         function submitChatMessageForm() {
-            let reg = /\<p\>\<br\>\<\/p\>/g;
             var chatMessageTextarea = $('#chatMessageTextarea');
-            chatMessageTextarea.val(chatMessageTextarea.val().replace(reg, ''));
+            chatMessageTextarea.val(tranferStringLine(chatMessageTextarea.val()));
             $.post('[(@{/message/api/save})]', $('#chatMessageForm').serialize(), function () {
             })
                 .done(function (data, textStatus, jqXHR) {
@@ -41,7 +40,7 @@
             pickerPosition: 'buttom',
             saveEmojisAs: 'shortname',
             recentEmojis: false,
-            autocomplete: true,
+            autocomplete: false,
             tonesStyle: 'square'
         });
     })

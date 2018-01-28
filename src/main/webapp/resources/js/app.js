@@ -37,6 +37,17 @@ function timeStampToString(time) {
     return year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
 }
 
+function getObjectURL(file) {
+    return window.URL.createObjectURL(file);
+}
+
+function tranferStringLine(content) {
+    var str = content;
+    str = str.replace(/\r\n/g, '<br/>');
+    str = str.replace(/\n/g, '<br/>');
+    return str;
+}
+
 $(document).ready(function () {
     $('.convert-emoji').each(function () {
         var original = $(this).html();

@@ -2,6 +2,7 @@ package hdfg159.chattogether.controller.api;
 
 import hdfg159.chattogether.annotation.CurrentUser;
 import hdfg159.chattogether.domain.MicroWord;
+import hdfg159.chattogether.domain.ao.MicroWordAO;
 import hdfg159.chattogether.domain.dto.BaseJsonObject;
 import hdfg159.chattogether.domain.vo.MicroWordFormVO;
 import hdfg159.chattogether.service.MicroWordService;
@@ -14,8 +15,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static hdfg159.chattogether.constant.RoleConsts.ADMIN_MICROWORD;
 import static hdfg159.chattogether.constant.RoleConsts.USER;
@@ -40,14 +46,23 @@ public class MicroWordApiController {
 	@Secured(USER)
 	@PostMapping("/save")
 	@ResponseStatus(CREATED)
-	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetail, @Valid MicroWordFormVO microWordFormVO, Errors errors) {
-		if (errors.hasErrors()) {
-			return responseFail(errors);
+	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetail, @Valid MicroWordFormVO microWordFormVO, MultipartFile[] pictures, Errors errors, HttpServletRequest request) throws IOException {
+		for (MultipartFile picture : pictures) {
+			InputStream file = picture.getInputStream();
+			if (!picture.isEmpty() && ImageIO.read(file) == null) {
+				return responseFail("不能上传非图片格式类型文件");
+			}
 		}
 		MicroWord microWord = MicroWord.builder()
 				.content(microWordFormVO.getContent())
 				.build();
-		microWordService.save(userDetail.getUsername(), microWord);
+		MicroWordAO microWordAO = MicroWordAO.builder()
+				.microWord(microWord)
+				.pictures(pictures)
+				.username(userDetail.getUsername())
+				.webRootPath(request.getServletContext().getRealPath(""))
+				.build();
+		microWordService.save(microWordAO);
 		return responseSuccess();
 	}
 	

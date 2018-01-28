@@ -19,7 +19,6 @@ import javax.validation.Valid;
 
 import static hdfg159.chattogether.constant.RoleConsts.USER;
 import static hdfg159.chattogether.util.ResponseUtils.responseDataSuccess;
-import static hdfg159.chattogether.util.ResponseUtils.responseFail;
 import static org.springframework.http.HttpStatus.CREATED;
 
 /**
@@ -40,9 +39,6 @@ public class MessageApiController {
 	@PostMapping("/save")
 	@ResponseStatus(CREATED)
 	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetails, @Valid ChatMessageFormVO chatMessageFormVO, Errors errors) {
-		if (errors.hasErrors()) {
-			return responseFail(errors);
-		}
 		String uri = "message/chat/" + userDetails.getUsername();
 		ChatMessageAO chatMessageAO = ChatMessageAO.builder()
 				.uri(uri)

@@ -40,9 +40,6 @@ public class MicroWordCommentReplyApiController {
 	@PostMapping("/save")
 	@ResponseStatus(CREATED)
 	public BaseJsonObject<?> save(@CurrentUser UserDetails userDetail, @Valid ReplyFormVO replyFormVO, Errors errors) {
-		if (errors.hasErrors()) {
-			return ResponseUtils.responseFail(errors);
-		}
 		String uri = "microword/details/" + String.valueOf(replyFormVO.getMicroWordId());
 		microWordCommentReplyService.save(replyFormVO.getMicrowordCommentId(), userDetail.getUsername(), replyFormVO.getRepliedUserId(), replyFormVO.getContent(), uri);
 		return ResponseUtils.responseSuccess();

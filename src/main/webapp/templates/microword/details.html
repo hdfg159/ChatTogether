@@ -57,18 +57,16 @@
             $('#replyArea').css('display', 'block');
             $('#microwordCommentId').val(microwordCommentId);
             $('#repliedUserId').val(repliedUserId);
-//            $('.focused').attr('placeholder', 'To ' + repliedUserName);
             $(window).scrollTop($('#commentReplyForm').offset().top);
         }
 
         function submitReplyComment() {
-            let reg = /\<p\>\<br\>\<\/p\>/g;
             var commentReplyContent = $('#commentReplyContent');
-            commentReplyContent.val(commentReplyContent.val().replace(reg, ''));
             if (commentReplyContent.val().length >= 200) {
                 alert('Data too long...');
                 return;
             }
+            commentReplyContent.val(tranferStringLine(commentReplyContent.val()));
             $.post('[(@{/microwordcommentreply/api/save})]', $('#commentReplyForm').serialize(), function () {
             }).done(function (data, textStatus, jqXHR) {
                 history.go(0);
@@ -78,13 +76,12 @@
         }
 
         function submitComment() {
-            let reg = /\<p\>\<br\>\<\/p\>/g;
             var commentContent = $('#commentContent');
-            commentContent.val(commentContent.val().replace(reg, ''));
             if (commentContent.val().length >= 200) {
                 alert('Data too long...');
                 return;
             }
+            commentContent.val(tranferStringLine(commentContent.val()));
             $.post('[(@{/microwordcomment/api/save})]', $('#commentForm').serialize(), function () {
             }).done(function (data, textStatus, jqXHR) {
                 history.go(0);
@@ -106,6 +103,14 @@
 <div th:text="'Date:'+${#dates.format(microWordDetailVO.microWord.createTime,'yyyy-MM-dd HH:mm:ss')}">
 </div>
 <div class="convert-emoji" th:utext="'Content:'+${microWordDetailVO.microWord.content}">微说内容</div>
+<a th:each="microWordAttachment:${microWordDetailVO.microWord.microWordAttachments}"
+   th:href="@{/{pictureUrl}(pictureUrl=${microWordAttachment.url})}">
+    <img src=""
+         width="128px"
+         height="128px"
+         th:src="@{/{pictureUrl}(pictureUrl=${microWordAttachment.url})}"/>
+</a>
+<br/>
 <span th:text="'Agree:'"></span>
 <input type="button"
        th:id="'btnagree'"
@@ -131,7 +136,7 @@
                 pickerPosition: 'buttom',
                 saveEmojisAs: 'shortname',
                 recentEmojis: false,
-                autocomplete: true,
+                autocomplete: false,
                 tonesStyle: 'square'
             });
         })
@@ -155,7 +160,7 @@
            value="Reply"
            sec:authorize="isAuthenticated()"
            th:onclick="'replyComment('+${microWordComment.id}+','+${microWordComment.commentUser.id}+','+'\''+${microWordComment.commentUser.username}+'\''+')'"/>
-    <div class="convert-emoji" th:utext="${microWordComment.content}"></div>
+    <p class="convert-emoji" th:utext="${microWordComment.content}"></p>
     <ul>
         <li th:each="microWordCommentReply:${microWordComment.getMicroWordCommentReplies()}">
             <img src=""
@@ -180,9 +185,9 @@
                    sec:authorize="isAuthenticated()"
                    value="Reply"
                    th:onclick="'replyComment('+${microWordComment.id}+','+${microWordCommentReply.replyUser.id}+','+'\''+${microWordCommentReply.replyUser.username}+'\''+')'"/>
-            <div class="convert-emoji"
-                 th:utext="${microWordCommentReply.content}">
-            </div>
+            <p class="convert-emoji"
+               th:utext="${microWordCommentReply.content}">
+            </p>
         </li>
     </ul>
 </div>
@@ -204,7 +209,7 @@
                 pickerPosition: 'top',
                 saveEmojisAs: 'shortname',
                 recentEmojis: false,
-                autocomplete: true,
+                autocomplete: false,
                 tonesStyle: 'square'
             });
         })
