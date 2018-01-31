@@ -206,8 +206,9 @@
         <span th:text="${#dates.format(microWord.createTime,'yy-MM-dd HH:mm:ss')}"></span>
         <a href="#" th:href="@{/microword/details/{microWordId}(microWordId=${microWord.id})}" th:text="'View'">View</a>
         <input th:type="button"
-               th:if="${#authentication.name == microWord.user.username or #authorization.expression('hasAnyRole(''ROLE_ADMIN_MICROWORD'')')}"
-               th:onclick="'deleteMicroWord('+${microWord.id}+')'" th:value="'Delete'"/>
+               sec:authorize="hasAnyRole('ROLE_ADMIN_MICROWORD') or #authentication.name == #vars.microWord.user.username"
+               th:onclick="|deleteMicroWord(${microWord.id})|"
+               th:value="'Delete'"/>
         <p class="convert-emoji" th:utext="${microWord.content}"></p>
         <a th:each="microWordAttachment:${microWord.microWordAttachments}"
            th:href="@{/{pictureUrl}(pictureUrl=${microWordAttachment.url})}">
@@ -217,10 +218,10 @@
                  th:src="@{/{pictureUrl}(pictureUrl=${microWordAttachment.url})}"/>
         </a>
         <br/>
-        <span th:text="'Comment:'+${#lists.size(microWord.microWordComments)}"></span>
+        <span th:text="|Comment:${#lists.size(microWord.microWordComments)}|"></span>
         <span th:text="' | Agree:'"></span>
-        <input type="button" th:id="'microWordId_agree_'+${microWord.id}"
-               th:onclick="'agreeMicroWord('+${microWord.id}+')'"
+        <input type="button" th:id="|microWordId_agree_${microWord.id}|"
+               th:onclick="|agreeMicroWord(${microWord.id})|"
                th:value="${#lists.size(microWord.microWordAgrees)}"/>
     </div>
 </form>

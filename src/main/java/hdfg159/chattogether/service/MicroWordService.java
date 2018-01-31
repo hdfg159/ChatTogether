@@ -75,4 +75,16 @@ public interface MicroWordService {
 	 * @return MicroWordDetailVO
 	 */
 	MicroWordDetailVO findMicroWordDetailById(Long id, Pageable pageable);
+	
+	/**
+	 * 分页查找用户的微说
+	 *
+	 * @param username
+	 * 		用户名
+	 * @param pageable
+	 * 		分页参数
+	 *
+	 * @return {@code Page<MicroWord>}
+	 */
+	Page<MicroWord> findAllByUsername(String username, Pageable pageable);
 }

@@ -27,24 +27,21 @@
         </tbody>
     </table>
     <a th:unless="${users.number == 0}"
-       th:href="${#httpServletRequest.requestURI}+'?'+${#strings.isEmpty(queryStringWithoutPage)?queryString:queryStringWithoutPage}+'&page='+${users.number - 1}"
+       th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?queryString:queryStringWithoutPage}&page=${users.number - 1}|"
        th:text="'Previous'">上一页</a>
     <a th:unless="${users.number+1==users.totalPages||users.number+1==users.totalPages}"
-       th:href="${#httpServletRequest.requestURI}+'?'+${#strings.isEmpty(queryStringWithoutPage)?queryString:queryStringWithoutPage}+'&page='+${users.number + 1}"
+       th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?queryString:queryStringWithoutPage}&page=${users.number + 1}|"
        th:text="'Next'">下一页</a>
     <br/>
     <form action="" th:action="@{/search}" th:method="get" th:onsubmit="'return pageFormSubmit()'">
-        <span th:text="${users.number+1}">页</span>
-        <span th:text="'/'">/</span>
-        <span th:text="${users.totalPages}+' Pages'">总页数</span>
+        <span th:text="|${users.number+1}/${users.totalPages}Pages|">总页数</span>
         <input type="number" th:min="1" th:max="${users.totalPages}" th:id="input_page" th:required="required"/>
-        <input type="hidden" th:name="'searchContent'" th:value="${homeSearchForm.searchContent}"/>
-        <input type="hidden" th:name="'searchItem'" th:value="${homeSearchForm.searchItem}"/>
+        <input type="hidden" th:name="'searchContent'" th:value="${homeSearchFormVO.searchContent}"/>
+        <input type="hidden" th:name="'searchItem'" th:value="${homeSearchFormVO.searchItem}"/>
         <input type="hidden" th:name="page" th:id="submit_page"/>
         <input type="submit" th:value="Go">
     </form>
-    <span th:text="'Page Displays Elements Count:'+${users.numberOfElements}+'/'">页面显示数据量</span>
-    <span th:text="'All Elements Count:'+${users.totalElements}">总数据量</span>
+    <span th:text="|${users.numberOfElements}/${users.totalElements} Elements Count|">页面显示数据量</span>
 </div>
 <div th:replace="template::footer"></div>
 </body>

@@ -127,8 +127,11 @@
     </ul>
     <div id="tab_base">
         <img th:src="@{/{profilePhoto}(profilePhoto=${userProfile.user.userProfile.profilePhoto})}"
-             th:width="48px"
-             th:height="48px"/>
+             th:width="64px"
+             th:height="64px"/>
+        <a href="#"
+           th:href="@{/microword/{userId}(userId=${userProfile.user.username})}"
+           th:text="'TA发表的微说'"></a>
         <form th:id="'userProfileForm'" th:action="@{/userprofile/save}" th:method="post">
             <table th:unless="${userProfile == null}">
                 <tr>

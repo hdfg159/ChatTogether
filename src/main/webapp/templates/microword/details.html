@@ -100,9 +100,9 @@
      th:width="32px"
      th:height="32px"/>
 <span th:text="${microWordDetailVO.microWord.user.username}"></span>
-<div th:text="'Date:'+${#dates.format(microWordDetailVO.microWord.createTime,'yyyy-MM-dd HH:mm:ss')}">
+<div th:text="|Date:${#dates.format(microWordDetailVO.microWord.createTime,'yyyy-MM-dd HH:mm:ss')}|">
 </div>
-<div class="convert-emoji" th:utext="'Content:'+${microWordDetailVO.microWord.content}">微说内容</div>
+<div class="convert-emoji" th:utext="|Content:${microWordDetailVO.microWord.content}|">微说内容</div>
 <a th:each="microWordAttachment:${microWordDetailVO.microWord.microWordAttachments}"
    th:href="@{/{pictureUrl}(pictureUrl=${microWordAttachment.url})}">
     <img src=""
@@ -115,11 +115,11 @@
 <input type="button"
        th:id="'btnagree'"
        th:value="${#lists.size(microWordDetailVO.microWord.microWordAgrees)}"
-       th:onclick="'agreeMicroWordDetail('+${microWordDetailVO.microWord.id}+')'"/>
+       th:onclick="|agreeMicroWordDetail(${microWordDetailVO.microWord.id})|"/>
 <input type="button"
        th:value="'Delete'"
-       th:onclick="'deleteMicroWordDetail('+${microWordDetailVO.microWord.id}+')'"
-       th:if="${#authentication.name == microWordDetailVO.microWord.user.username or #authorization.expression('hasRole(''ROLE_ADMIN_MICROWORD'') or hasRole(''ROLE_ADMIN'')')}"/>
+       th:onclick="|deleteMicroWordDetail(${microWordDetailVO.microWord.id})|"
+       sec:authorize="hasAnyRole('ROLE_ADMIN_MICROWORD') or #authentication.name == #vars.microWordDetailVO.microWord.user.username"/>
 <br/>
 
 <div sec:authorize="isAuthenticated()">
@@ -152,14 +152,14 @@
     <a th:text="${microWordComment.commentUser.username}"
        th:href="@{/userprofile/details/{username}(username=${microWordComment.commentUser.username})}">
     </a>
-    <span th:text="' Date:'+${#dates.format(microWordComment.createTime,'yy-MM-dd HH:mm:ss')}"></span>
+    <span th:text="| Date:${#dates.format(microWordComment.createTime,'yy-MM-dd HH:mm:ss')}|"></span>
     <input type="button" value="Delete"
-           th:onclick="'deleteMicroWordComment('+${microWordComment.id}+')'"
-           th:if="${#authentication.name == microWordComment.commentUser.username or #authorization.expression('hasAnyRole(''ROLE_ADMIN_COMMENT'')')}"/>
+           th:onclick="|deleteMicroWordComment(${microWordComment.id})|"
+           sec:authorize="hasAnyRole('ROLE_ADMIN_COMMENT') or #authentication.name == #vars.microWordComment.commentUser.username"/>
     <input type="button"
            value="Reply"
            sec:authorize="isAuthenticated()"
-           th:onclick="'replyComment('+${microWordComment.id}+','+${microWordComment.commentUser.id}+','+'\''+${microWordComment.commentUser.username}+'\''+')'"/>
+           th:onclick="|replyComment(${microWordComment.id},${microWordComment.commentUser.id},'${microWordComment.commentUser.username}')|"/>
     <p class="convert-emoji" th:utext="${microWordComment.content}"></p>
     <ul>
         <li th:each="microWordCommentReply:${microWordComment.getMicroWordCommentReplies()}">
@@ -176,15 +176,15 @@
                  th:height="32px"/>
             <a th:href="@{/userprofile/details/{username}(username=${microWordComment.commentUser.username})}"
                th:text="${microWordCommentReply.replyUser.username}"></a>
-            <span th:text="' Date:'+${#dates.format(microWordCommentReply.createTime,'yy-MM-dd HH:mm:ss')}"></span>
+            <span th:text="| Date:${#dates.format(microWordCommentReply.createTime,'yy-MM-dd HH:mm:ss')}|"></span>
             <input type="button"
                    value="Delete"
-                   th:if="${#authentication.name == microWordCommentReply.replyUser.username or #authorization.expression('hasAnyRole(''ROLE_ADMIN_COMMENT'')')}"
-                   th:onclick="'deleteMicroWordCommentReply('+${microWordCommentReply.id}+')'"/>
+                   sec:authorize="hasAnyRole('ROLE_ADMIN_COMMENT') or #authentication.name == #vars.microWordCommentReply.replyUser.username"
+                   th:onclick="|deleteMicroWordCommentReply(${microWordCommentReply.id})|"/>
             <input type="button"
                    sec:authorize="isAuthenticated()"
                    value="Reply"
-                   th:onclick="'replyComment('+${microWordComment.id}+','+${microWordCommentReply.replyUser.id}+','+'\''+${microWordCommentReply.replyUser.username}+'\''+')'"/>
+                   th:onclick="|replyComment(${microWordComment.id},${microWordCommentReply.replyUser.id},'${microWordCommentReply.replyUser.username}')|"/>
             <p class="convert-emoji"
                th:utext="${microWordCommentReply.content}">
             </p>
@@ -218,11 +218,9 @@
 
 <div>
     <form th:action="@{/microword/details/{microWordId}(microWordId=${microWordDetailVO.microWord.id})}"
-          th:method="get" th:onsubmit="'return pageFormSubmit()'">
-        <span th:text=" ${microWordDetailVO.microWordCommentPage.number+1}
-        ">页</span>
-        <span th:text="'/'">/</span>
-        <span th:text="${microWordDetailVO.microWordCommentPage.totalPages}+' Pages'">总页数</span>
+          th:method="get"
+          th:onsubmit="'return pageFormSubmit()'">
+        <span th:text="|${microWordDetailVO.microWordCommentPage.number+1}/${microWordDetailVO.microWordCommentPage.totalPages} Pages|">总页数</span>
         <input type="number" th:min="1" th:max="${microWordDetailVO.microWordCommentPage.totalPages}" th:id="input_page"
                th:required="required"/>
         <input type="hidden" th:name="page" th:id="submit_page"/>
@@ -234,8 +232,7 @@
     <a th:unless="${microWordDetailVO.microWordCommentPage.number + 1== microWordDetailVO.microWordCommentPage.totalPages}"
        th:href="@{/microword/details/{microWordId}(microWordId=${microWordDetailVO.microWord.id},page=${microWordDetailVO.microWordCommentPage.number+1})}"
        th:text="'Next'">下一页</a>
-    <span th:text="'Page Displays Elements Count:'+${microWordDetailVO.microWordCommentPage.numberOfElements}+'/'">页面显示数据量</span>
-    <span th:text="'All Elements Count:'+${microWordDetailVO.microWordCommentPage.totalElements}">总数据量</span>
+    <span th:text="|${microWordDetailVO.microWordCommentPage.numberOfElements}/${microWordDetailVO.microWordCommentPage.totalElements} Elements Count|">总数据量</span>
 </div>
 <div th:replace="template::footer"></div>
 </body>

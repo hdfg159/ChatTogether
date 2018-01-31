@@ -12,4 +12,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface MicroWordRepository extends JpaRepository<MicroWord, Long> {
 	Page<MicroWord> findAllByContentContaining(String content, Pageable pageable);
+	
+	Page<MicroWord> findAllByUser_Username(String username, Pageable pageable);
 }

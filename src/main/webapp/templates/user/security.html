@@ -36,7 +36,7 @@
         </ul>
     </div>
     <div th:unless="${exception == null}">
-        <span th:text="'错误：'+${exception.message}"></span>
+        <span th:text="|错误：${exception.message}|"></span>
     </div>
 </form>
 <div th:replace="template::footer"></div>

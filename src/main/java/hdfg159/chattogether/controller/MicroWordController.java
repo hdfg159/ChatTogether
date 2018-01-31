@@ -31,4 +31,11 @@ public class MicroWordController {
 		model.addAttribute("microWordDetailVO", microWordDetailVO);
 		return "microword/details";
 	}
+	
+	@GetMapping("/{username}")
+	public String showUserMicroWords(Model model, @PathVariable String username, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+		model.addAttribute("microWordList", microWordService.findAllByUsername(username, pageable));
+		model.addAttribute("username", username);
+		return "microword/list";
+	}
 }

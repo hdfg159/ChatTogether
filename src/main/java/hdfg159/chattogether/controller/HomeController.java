@@ -71,6 +71,7 @@ public class HomeController {
 			case "username":
 				Page<User> users = userService.findByUsernameContaining(homeSearchFormVO.getSearchContent(), pageable);
 				model.addAttribute("users", users);
+				model.addAttribute("homeSearchFormVO", homeSearchFormVO);
 				return "user/search";
 			case "microWord":
 				Page<MicroWord> microWords = microWordService.findAllByContentContaining(homeSearchFormVO.getSearchContent(), pageable);

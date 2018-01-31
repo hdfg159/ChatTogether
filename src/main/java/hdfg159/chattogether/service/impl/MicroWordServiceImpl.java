@@ -44,7 +44,7 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.getMessage;
 @Transactional
 @PropertySource(value = {"classpath:appconfig.properties"})
 public class MicroWordServiceImpl implements MicroWordService {
-	public static final String IMAGES_PICTURE_DEFAULT_PATH = "images/picture/";
+	private static final String IMAGES_PICTURE_DEFAULT_PATH = "images/picture/";
 	private final MicroWordRepository microWordRepository;
 	private final UserRepository userRepository;
 	private final MicroWordCommentRepository microWordCommentRepository;
@@ -140,5 +140,10 @@ public class MicroWordServiceImpl implements MicroWordService {
 		MicroWord microWord = microWordOptional.orElseThrow(() -> new MicroWordNotFoundException("For Id:" + id));
 		Page<MicroWordComment> microWordComments = microWordCommentRepository.findAllByMicroWord(microWord, pageable);
 		return new MicroWordDetailVO(microWord, microWordComments);
+	}
+	
+	@Override
+	public Page<MicroWord> findAllByUsername(String username, Pageable pageable) {
+		return microWordRepository.findAllByUser_Username(username, pageable);
 	}
 }
