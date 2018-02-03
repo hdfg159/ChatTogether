@@ -242,12 +242,10 @@
     <a th:unless="${microWords.number == 0}"
        th:href="@{/(page=${microWords.number - 1})}"
        th:text="'Previous'">上一页</a>
-    <a th:unless="${microWords.number+1==microWords.totalPages}"
+    <a th:unless="${microWords.number+1==microWords.totalPages || microWords.totalElements==0}"
        th:href="@{/(page=${microWords.number + 1})}"
        th:text="'Next'">下一页</a>
-    <br/>
-    <span th:text="'Page Displays Elements Count:'+${microWords.numberOfElements}+'/'">页面显示数据量</span>
-    <span th:text="'All Elements Count:'+${microWords.totalElements}">总数据量</span>
+    <span th:text="|${microWords.numberOfElements}/${microWords.totalElements} Elements Count|">页面显示数据量</span>
 </div>
 <div th:replace="template::footer"></div>
 </body>

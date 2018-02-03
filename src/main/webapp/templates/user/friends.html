@@ -57,7 +57,7 @@
     <a th:unless="${userFriendPage.number == 0}"
        th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?queryString:queryStringWithoutPage}&page=${userFriendPage.number - 1}|"
        th:text="'Previous'">上一页</a>
-    <a th:unless="${userFriendPage.number+1==userFriendPage.totalPages||userFriendPage.number+1==userFriendPage.totalPages}"
+    <a th:unless="${userFriendPage.number+1==userFriendPage.totalPages||userFriendPage.totalElements==0}"
        th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?queryString:queryStringWithoutPage}&page=${userFriendPage.number + 1}|"
        th:text="'Next'">下一页</a>
     <br/>

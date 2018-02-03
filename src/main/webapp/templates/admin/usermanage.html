@@ -106,7 +106,7 @@
         <input type="submit" th:value="Go">
     </form>
     <a th:unless="${users.number==0}" th:href="@{/user/users/(page=${users.number - 1})}" th:text="'Previous'">上一页</a>
-    <a th:unless="${users.number+1==users.totalPages||users.number+1==users.totalPages}"
+    <a th:unless="${users.number+1==users.totalPages||users.totalElements==0}"
        th:href="@{/user/users/(page=${users.number+1})}"
        th:text="'Next'">下一页</a>
     <span th:text="|${users.numberOfElements}/${users.totalElements} Elements Count|">页面显示数据量</span>

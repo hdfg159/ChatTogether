@@ -62,7 +62,7 @@
     <a th:unless="${microWordList.number==0}"
        th:href="@{/microword/{username}(username=${username},page=${microWordList.number - 1})}"
        th:text="'Previous'">上一页</a>
-    <a th:unless="${microWordList.number + 1== microWordList.totalPages}"
+    <a th:unless="${microWordList.number+1==microWordList.totalPages||microWordList.totalElements==0}"
        th:href="@{/microword/{username}(username=${username},page=${microWordList.number+1})}"
        th:text="'Next'">下一页</a>
     <span th:text="|${microWordList.numberOfElements}/${microWordList.totalElements} Elements Count|">总数据量</span>

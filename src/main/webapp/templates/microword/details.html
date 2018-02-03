@@ -229,7 +229,7 @@
     <a th:unless="${microWordDetailVO.microWordCommentPage.number==0}"
        th:href="@{/microword/details/{microWordId}(microWordId=${microWordDetailVO.microWord.id},page=${microWordDetailVO.microWordCommentPage.number - 1})}"
        th:text="'Previous'">上一页</a>
-    <a th:unless="${microWordDetailVO.microWordCommentPage.number + 1== microWordDetailVO.microWordCommentPage.totalPages}"
+    <a th:unless="${microWordDetailVO.microWordCommentPage.number+1== microWordDetailVO.microWordCommentPage.totalPages||microWordDetailVO.microWordCommentPage.totalElements==0}"
        th:href="@{/microword/details/{microWordId}(microWordId=${microWordDetailVO.microWord.id},page=${microWordDetailVO.microWordCommentPage.number+1})}"
        th:text="'Next'">下一页</a>
     <span th:text="|${microWordDetailVO.microWordCommentPage.numberOfElements}/${microWordDetailVO.microWordCommentPage.totalElements} Elements Count|">总数据量</span>

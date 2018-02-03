@@ -13,7 +13,7 @@
             })
                 .done(function (data, textStatus, jqXHR) {
                     if (data !== null) {
-                        $('.emojionearea-editor').html('');
+                        $('.emojionearea-editor').html(' ');
                         var date = timeStampToString(data.data.createTime);
                         $('#head')
                             .prepend("<div style='border: dotted;'>You:" + date + "<div>" + emojione.toImage(data.data.content) + "</div></div>");
@@ -71,7 +71,7 @@
     <a th:unless="${messages.number == 0}"
        th:href="@{/message/chat/{username}(page=${messages.number - 1},username=${chatUsername})}"
        th:text="'Previous'">上一页</a>
-    <a th:unless="${messages.number+1==messages.totalPages||messages.number+1==messages.totalPages}"
+    <a th:unless="${messages.number+1==messages.totalPages||messages.totalElements==0}"
        th:href="@{/message/chat/{username}(page=${messages.number+1},username=${chatUsername})}"
        th:text="'Next'">下一页</a>
     <span th:text="|${messages.numberOfElements}/${messages.totalElements} Element Counts|">页面显示数据量</span>

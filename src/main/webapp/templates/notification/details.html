@@ -80,7 +80,7 @@
     <a th:unless="${notifications.number == 0}"
        th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?'':queryStringWithoutPage}&page=${notifications.number - 1}|"
        th:text="'Previous'">上一页</a>
-    <a th:unless="${notifications.number+1==notifications.totalPages||notifications.number+1==notifications.totalPages}"
+    <a th:unless="${notifications.number+1==notifications.totalPages||notifications.totalElements==0}"
        th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?'':queryStringWithoutPage}&page=${notifications.number + 1}|"
        th:text="'Next'">下一页</a>
     <br/>

@@ -29,7 +29,7 @@
     <a th:unless="${users.number == 0}"
        th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?queryString:queryStringWithoutPage}&page=${users.number - 1}|"
        th:text="'Previous'">上一页</a>
-    <a th:unless="${users.number+1==users.totalPages||users.number+1==users.totalPages}"
+    <a th:unless="${users.number+1==users.totalPages||users.totalElements==0}"
        th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?queryString:queryStringWithoutPage}&page=${users.number + 1}|"
        th:text="'Next'">下一页</a>
     <br/>
