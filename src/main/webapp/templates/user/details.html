@@ -122,7 +122,7 @@
             <a href="#tab_base">Basic Information</a>
         </li>
         <li>
-            <a href="#tab_photo" th:if="${#authentication.name == userProfile.user.username}">Profile Photo</a>
+            <a href="#tab_photo" th:if="${#authentication.name==userProfile.user.username}">Profile Photo</a>
         </li>
     </ul>
     <div id="tab_base">
@@ -132,16 +132,21 @@
         <a href="#"
            th:href="@{/microword/{userId}(userId=${userProfile.user.username})}"
            th:text="'TA发表的微说'"></a>
+        <a href="#"
+           th:if="${!#strings.equals(userProfile.user.username,#authentication.name)&&isExistUserFriend}"
+           th:href="@{/message/chat/{username}(username=${userProfile.user.username})}"
+           th:text="'发私信给TA'"></a>
         <form th:id="'userProfileForm'" th:action="@{/userprofile/save}" th:method="post">
-            <table th:unless="${userProfile == null}">
+            <table th:unless="${userProfile==null}">
                 <tr>
                     <td th:text="'UserId:'"></td>
                     <td th:text="${userProfile.user.id}"></td>
                     <td th:text="'Sex:'"></td>
                     <td>
-                        <select th:name="'sex'" th:disabled="${#authentication.name!=userProfile.user.username}">
-                            <option value="男" th:selected="${userProfile.sex == '男'}">男</option>
-                            <option value="女" th:selected="${userProfile.sex == '女'}">女</option>
+                        <select th:name="'sex'"
+                                th:disabled="${!#strings.equals(userProfile.user.username,#authentication.name)}">
+                            <option value="男" th:selected="${userProfile.sex=='男'}">男</option>
+                            <option value="女" th:selected="${userProfile.sex=='女'}">女</option>
                         </select>
                     </td>
                     <td th:text="'Age:'"></td>
@@ -212,19 +217,21 @@
                                th:value="'Add Friend'"/>
                     </td>
                     <td sec:authorize="hasAnyRole('ROLE_ADMIN_USER')"
-                        th:if="${#authentication.name != userProfile.user.username}">
+                        th:if="${#authentication.name!=userProfile.user.username}">
                         <input th:id="'switchState'" type="button"
                                th:onclick="'switchUserAccountState('+${userProfile.user.id}+');'"
                                th:value="${userProfile.user.getUserAccountState().getIsEnabled()==0?'Enable':'Disable'}"/>
                     </td>
                 </tr>
             </table>
-            <div th:unless="${error == null}">
-                <span th:text=" ${error}"></span>
-            </div>
         </form>
+        <ul th:if="${errors!=null}">
+            <li th:each="error:${errors.fieldErrors}"
+                th:text="|${error.field}-${error.defaultMessage}:输入值为${error.rejectedValue}|">
+            </li>
+        </ul>
     </div>
-    <div id="tab_photo" th:if="${#authentication.name == userProfile.user.username}">
+    <div id="tab_photo" th:if="${#authentication.name==userProfile.user.username}">
         <input type="file" th:id="'cut_img'" onchange="inputProfilePhoto(this);" accept=".png,.jpg,.jpeg"/>
         <input type="button" th:value="'Upload Profile Photo'" onclick="uploadProfilePhoto();"/>
         <hr>

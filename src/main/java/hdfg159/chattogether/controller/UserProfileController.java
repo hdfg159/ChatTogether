@@ -52,7 +52,7 @@ public class UserProfileController {
 	public String saveUserProfile(Model model, @Valid UserProfileFormVO userProfileFormVO, Errors errors) {
 		if (errors.hasErrors()) {
 			log.info(errors.toString());
-			model.addAttribute("error", "输入数据有误");
+			model.addAttribute("errors", errors);
 			model.addAttribute("userProfile", userProfileService.findById(userProfileFormVO.getId()));
 			return "user/details";
 		}
