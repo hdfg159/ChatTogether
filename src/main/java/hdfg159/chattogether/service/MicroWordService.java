@@ -87,4 +87,16 @@ public interface MicroWordService {
 	 * @return {@code Page<MicroWord>}
 	 */
 	Page<MicroWord> findAllByUsername(String username, Pageable pageable);
+	
+	/**
+	 * 根据用户名查找用户好友的所有发表微说
+	 *
+	 * @param username
+	 * 		用户名
+	 * @param pageable
+	 * 		分页参数
+	 *
+	 * @return {@code Page<MicroWord>}
+	 */
+	Page<MicroWord> findAllByUserFriend(String username, Pageable pageable);
 }

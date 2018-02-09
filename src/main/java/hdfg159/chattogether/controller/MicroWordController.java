@@ -1,11 +1,15 @@
 package hdfg159.chattogether.controller;
 
+import hdfg159.chattogether.annotation.CurrentUser;
+import hdfg159.chattogether.domain.MicroWord;
 import hdfg159.chattogether.domain.vo.MicroWordDetailVO;
 import hdfg159.chattogether.service.MicroWordService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,5 +41,12 @@ public class MicroWordController {
 		model.addAttribute("microWordList", microWordService.findAllByUsername(username, pageable));
 		model.addAttribute("username", username);
 		return "microword/list";
+	}
+	
+	@GetMapping("/userfriend")
+	public String showUserFriendMicroWords(Model model, @CurrentUser UserDetails userDetail, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
+		Page<MicroWord> microWords = microWordService.findAllByUserFriend(userDetail.getUsername(), pageable);
+		model.addAttribute("microWords", microWords);
+		return "index";
 	}
 }

@@ -1,4 +1,5 @@
 # #Gradle
+.idea
 .gradle
 /build/
 

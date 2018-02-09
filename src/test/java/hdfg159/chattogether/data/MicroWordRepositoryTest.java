@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -40,5 +42,11 @@ public class MicroWordRepositoryTest {
 				log.info(microWord.toString());
 			}
 		});
+	}
+	
+	@Test
+	public void findAllByUserFriend() throws Exception {
+		Page<MicroWord> microWords = microWordRepository.findAllByUserFriend("aaaaaa", new PageRequest(0, 10));
+		log.info(String.valueOf(microWords.getSize()));
 	}
 }

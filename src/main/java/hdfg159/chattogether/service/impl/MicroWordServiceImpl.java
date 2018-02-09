@@ -146,4 +146,9 @@ public class MicroWordServiceImpl implements MicroWordService {
 	public Page<MicroWord> findAllByUsername(String username, Pageable pageable) {
 		return microWordRepository.findAllByUser_Username(username, pageable);
 	}
+	
+	@Override
+	public Page<MicroWord> findAllByUserFriend(String username, Pageable pageable) {
+		return microWordRepository.findAllByUserFriend(username, pageable);
+	}
 }

@@ -76,7 +76,6 @@ public class HomeController {
 			case "microWord":
 				Page<MicroWord> microWords = microWordService.findAllByContentContaining(homeSearchFormVO.getSearchContent(), pageable);
 				model.addAttribute("microWords", microWords);
-				model.addAttribute("isSearchMicroWordsResult", true);
 				model.addAttribute("homeSearchFormVO", homeSearchFormVO);
 				return "index";
 			default:
