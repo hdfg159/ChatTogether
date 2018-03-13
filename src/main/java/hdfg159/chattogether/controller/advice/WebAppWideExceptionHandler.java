@@ -74,6 +74,12 @@ public class WebAppWideExceptionHandler {
 		return getModelAndView(e);
 	}
 	
+	@ExceptionHandler(MicroWordCommentAgreeExistException.class)
+	@ResponseStatus(value = CONFLICT)
+	public ModelAndView microWordCommentAgreeExistHandler(Exception e) {
+		return getModelAndView(e);
+	}
+	
 	@ExceptionHandler(MicroWordNotFoundException.class)
 	@ResponseStatus(value = NOT_FOUND)
 	public ModelAndView microWordNotFoundHandler(Exception e) {

@@ -20,6 +20,19 @@
             });
         }
 
+        function agreeMicroWordComment(microWordId, microWordCommentId) {
+            var btn_agree = $('#btnCommentAgree_' + microWordCommentId);
+            $.post('[(@{/microwordcommentagree/api/save})]', {
+                'microWordId': microWordId, 'microWordCommentId': microWordCommentId, _csrf: [[${_csrf.token}]]
+            }, function () {
+            }).done(function (data, textStatus, jqXHR) {
+                btn_agree.val(parseInt(btn_agree.val()) + 1);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                console.info('Request Error!' + errorThrown);
+                alert('您已经点赞过!不能再操作哦~');
+            });
+        }
+
         function deleteMicroWordDetail(id) {
             $.post('[(@{/microword/api/delete})]', {
                 'id': id, _csrf: [[${_csrf.token}]]
@@ -160,6 +173,11 @@
            value="Reply"
            sec:authorize="isAuthenticated()"
            th:onclick="|replyComment(${microWordComment.id},${microWordComment.commentUser.id},'${microWordComment.commentUser.username}')|"/>
+    <input type="button"
+           sec:authorize="isAuthenticated()"
+           th:id="|btnCommentAgree_${microWordComment.getId()}|"
+           th:value="${#lists.size(microWordComment.microWordCommentAgrees)}"
+           th:onclick="|agreeMicroWordComment(${microWordComment.getMicroWord().getId()},${microWordComment.id})|"/>
     <p class="convert-emoji" th:utext="${microWordComment.content}"></p>
     <ul>
         <li th:each="microWordCommentReply:${microWordComment.getMicroWordCommentReplies()}">

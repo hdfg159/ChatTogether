@@ -18,8 +18,8 @@ import java.util.Set;
  */
 @Setter
 @Getter
-@ToString(exclude = {"userAccountState", "userProfile", "userAuthorizations", "activeUserFriends", "passiveUserFriends", "sendMessages", "receiveMessages", "sendMessageNotifications", "receiveMessageNotifications", "microWords", "microWordAgrees", "microWordComments"})
-@EqualsAndHashCode(exclude = {"userAccountState", "userProfile", "userAuthorizations", "activeUserFriends", "passiveUserFriends", "sendMessages", "receiveMessages", "sendMessageNotifications", "receiveMessageNotifications", "microWords", "microWordAgrees", "microWordComments"})
+@ToString(exclude = {"userAccountState", "userProfile", "userAuthorizations", "activeUserFriends", "passiveUserFriends", "sendMessages", "receiveMessages", "sendMessageNotifications", "receiveMessageNotifications", "microWords", "microWordAgrees", "microWordComments", "microWordCommentAgrees"})
+@EqualsAndHashCode(exclude = {"userAccountState", "userProfile", "userAuthorizations", "activeUserFriends", "passiveUserFriends", "sendMessages", "receiveMessages", "sendMessageNotifications", "receiveMessageNotifications", "microWords", "microWordAgrees", "microWordComments", "microWordCommentAgrees"})
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -90,4 +90,8 @@ public class User implements Serializable {
 	@JsonIgnore
 	@OneToMany(targetEntity = MicroWordComment.class, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "commentUser")
 	private Set<MicroWordComment> microWordComments;
+	
+	@JsonIgnore
+	@OneToMany(targetEntity = MicroWordCommentAgree.class, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "user")
+	private Set<MicroWordCommentAgree> microWordCommentAgrees;
 }

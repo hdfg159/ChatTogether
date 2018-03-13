@@ -10,6 +10,7 @@ public class MessageNotificationConsts {
 	public static final String BUILD_USERFRIEND = "请求加为好友[点击接受]";
 	public static final String COMMENT_YOUR_MICROWORD = "回复你的微说";
 	public static final String AGREE_YOUR＿MICROWORD = "赞了你的微说";
+	public static final String AGREE_YOUR＿MICROWORD_COMMENT = "赞了你的微说评论";
 	/**
 	 * 已读状态
 	 */

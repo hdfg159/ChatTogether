@@ -17,8 +17,8 @@ import java.util.Set;
  */
 @Setter
 @Getter
-@ToString(exclude = {"microWord", "commentUser", "microWordCommentReplies"})
-@EqualsAndHashCode(exclude = {"microWord", "commentUser", "microWordCommentReplies"})
+@ToString(exclude = {"microWord", "commentUser", "microWordCommentReplies", "microWordCommentAgrees"})
+@EqualsAndHashCode(exclude = {"microWord", "commentUser", "microWordCommentReplies", "microWordCommentAgrees"})
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -53,4 +53,8 @@ public class MicroWordComment {
 	@OrderBy("createTime asc")
 	@OneToMany(targetEntity = MicroWordCommentReply.class, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "microWordComment")
 	private Set<MicroWordCommentReply> microWordCommentReplies;
+	
+	@JsonIgnore
+	@OneToMany(targetEntity = MicroWordCommentAgree.class, fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, mappedBy = "microWordComment")
+	private Set<MicroWordCommentAgree> microWordCommentAgrees;
 }
