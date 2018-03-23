@@ -9,6 +9,10 @@
 <header th:fragment="header">
     <div sec:authorize="isAuthenticated()">
         <script th:inline="javascript">
+            function refreshNotification() {
+                setInterval('getNoticeCount()', 10000);
+            }
+
             function getNoticeCount() {
                 $.getJSON('[(@{/messagenotification/api/count})]', {}, function () {
                 }).done(function (data, textStatus, jqXHR) {
@@ -23,6 +27,7 @@
             }
 
             getNoticeCount();
+            refreshNotification();
         </script>
         <form action="#" th:action="@{/logout}" th:method="post">
             <span sec:authentication="name"></span>

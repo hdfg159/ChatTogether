@@ -43,6 +43,13 @@ public class MessageNotificationApiController {
 	}
 	
 	@Secured(USER)
+	@GetMapping("/mark/users/msg/read")
+	public BaseJsonObject<?> markNotificationsAsRead(@CurrentUser UserDetails userDetails, String sendUsername) {
+		messageNotificationService.markMessageNotificationReadByUsers(userDetails.getUsername(), sendUsername);
+		return responseSuccess();
+	}
+	
+	@Secured(USER)
 	@GetMapping("/markread/{notificationId}")
 	public BaseJsonObject<?> markNotificationAsRead(@PathVariable Long notificationId) {
 		messageNotificationService.markNotificationAsRead(notificationId);

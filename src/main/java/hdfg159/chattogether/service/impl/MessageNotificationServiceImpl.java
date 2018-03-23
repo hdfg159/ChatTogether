@@ -14,8 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 
-import static hdfg159.chattogether.constant.MessageNotificationConsts.IS_NOT_READ;
-import static hdfg159.chattogether.constant.MessageNotificationConsts.IS_READ;
+import static hdfg159.chattogether.constant.MessageNotificationConsts.*;
 
 /**
  * Project:ChatTogether
@@ -62,6 +61,16 @@ public class MessageNotificationServiceImpl implements MessageNotificationServic
 		messageNotification.setModifiedTime(new Date());
 		messageNotification.setIsRead(IS_READ);
 		messageNotificationRepository.save(messageNotification);
+		return true;
+	}
+	
+	@Override
+	public boolean markMessageNotificationReadByUsers(String receiveUsername, String sendUsername) {
+		List<MessageNotification> messageNotifications = messageNotificationRepository.findAllByReceiveNotificationUser_UsernameAndSendNotificationUser_UsernameAndIsReadAndType(receiveUsername, sendUsername, IS_NOT_READ, TYPE_MESSAGE);
+		for (MessageNotification messageNotification : messageNotifications) {
+			messageNotification.setIsRead(IS_READ);
+			messageNotification.setModifiedTime(new Date());
+		}
 		return true;
 	}
 	

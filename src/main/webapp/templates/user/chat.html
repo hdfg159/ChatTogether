@@ -3,35 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <title>Chat With User</title>
+    <script th:src="@{/webjars/sockjs-client/1.1.4/dist/sockjs.min.js}"></script>
+    <script th:src="@{/webjars/stomp-websocket/2.3.4/lib/stomp.js}"></script>
     <th:block th:replace="template::editorAsset">
     </th:block>
     <script th:inline="javascript">
-        function submitChatMessageForm() {
-            var chatMessageTextarea = $('#chatMessageTextarea');
-            chatMessageTextarea.val(tranferStringLine(chatMessageTextarea.val()));
-            $.post('[(@{/message/api/save})]', $('#chatMessageForm').serialize(), function () {
-            })
-                .done(function (data, textStatus, jqXHR) {
-                    if (data !== null) {
-                        $('.emojionearea-editor').html(' ');
-                        var date = timeStampToString(data.data.createTime);
-                        $('#head')
-                            .prepend("<div style='border: dotted;'>You:" + date + "<div>" + emojione.toImage(data.data.content) + "</div></div>");
-                    }
-                }).fail(function (jqXHR, textStatus, errorThrown) {
+        var sock = new SockJS('[(@{/channel/chat})]');
+        var stomp = Stomp.over(sock);
+
+        stomp.connect('guest', 'guest', function (frame) {
+            stomp.subscribe('/user/queue/chat', handleChatMessage);
+        });
+
+        function handleChatMessage(message) {
+            if (message === null) {
+                alert('发送消息失败！');
+            }
+            var msg = JSON.parse(message.body);
+            if (msg.sendUsername === '[(${chatUsername})]') {
+                addContent(msg);
+                markMessageNotificationIsRead();
+            }
+            if (msg.sendUsername === '[(${#authentication.name})]') {
+                $('.emojionearea-editor').html(' ');
+                addContent(msg);
+            }
+        }
+
+        function markMessageNotificationIsRead() {
+            $.getJSON('[(@{/messagenotification/api/mark/users/msg/read(sendUsername=${chatUsername})})]', {}, function () {
+            }).done(function (data, textStatus, jqXHR) {
+            }).fail(function (jqXHR, textStatus, errorThrown) {
                 alert('Request Error!' + errorThrown);
             });
+        }
+
+        function addContent(msg) {
+            var date = timeStampToString(msg.content.createTime);
+            $('#head')
+                .prepend("<div style='border: dotted;'>" + "<img src='[(@{/})]" + msg.content.sendUser.userProfile.profilePhoto + "' width='32px' height='32px'> <span>" + msg.sendUsername + "</span> <span>" + date + "</span><div>" + emojione.toImage(msg.content.content) + "</div>");
+        }
+
+        function sendChatMessage() {
+            var chatMessageTextarea = $('#chatMessageTextarea');
+            chatMessageTextarea.val(tranferStringLine(chatMessageTextarea.val()));
+            var chatFormVO = $('#chatMessageForm').serializeObject();
+            var text = JSON.stringify(chatFormVO);
+            stomp.send('/app/chat', {}, text);
         }
     </script>
 </head>
 <body>
 <div th:replace="template::header"></div>
 <br/>
-<form action="#" th:action="@{/}" th:method="post" th:id="'chatMessageForm'">
+<form action="#" th:action="@{/}" th:method="get" th:id="'chatMessageForm'">
     <textarea id="chatMessageTextarea" name="content"></textarea>
     <input type="hidden" th:value="${chatUsername}" name="receiveUsername"/>
 </form>
-<input type="button" th:value="'Send'" onclick="submitChatMessageForm();"/>
+<input type="button" th:value="'Send'" onclick="sendChatMessage();"/>
 <script type="text/javascript">
     $(document).ready(function () {
         $('#chatMessageTextarea').emojioneArea({
@@ -51,11 +80,14 @@
         <img th:src="@{/{profilePhoto}(profilePhoto=${message.sendUser.userProfile.profilePhoto})}"
              th:width="32px"
              th:height="32px"/>
-        <span th:text="${message.sendUser.username == #authentication.name?'You:':message.sendUser.username}"></span>
+        <span th:text="${message.sendUser.username}"></span>
         <span th:text="${#dates.format(message.createTime,'yyyy-MM-dd HH:mm:ss')}"></span>
         <div class="convert-emoji" th:utext="${message.content}"></div>
     </div>
 </th:block>
+<script th:inline="javascript">
+
+</script>
 <div>
     <form action="" th:action="@{/message/chat/{username}(username=${chatUsername})}" th:method="get"
           th:onsubmit="'return pageFormSubmit()'">

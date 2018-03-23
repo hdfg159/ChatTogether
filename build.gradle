@@ -59,6 +59,8 @@ dependencies {
     compile 'org.webjars:jquery:3.2.1'
     compile 'org.webjars:jquery-ui:1.12.1'
     compile 'org.webjars.bower:cropper:3.1.3'
+    compile 'org.webjars.npm:sockjs-client:1.1.4'
+    compile 'org.webjars.bower:stomp-websocket:2.3.4'
 
     compile 'org.projectlombok:lombok:1.16.18'
     compile 'org.apache.commons:commons-lang3:3.7'

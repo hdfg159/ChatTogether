@@ -51,4 +51,16 @@ public interface MessageNotificationService {
 	 * @return {@code boolean 是否成功}
 	 */
 	boolean markNotificationAsRead(Long id);
+	
+	/**
+	 * 标记两个用户之间的消息通知标记已读状态
+	 *
+	 * @param receiveUsername
+	 * 		接收者用户名
+	 * @param sendUsername
+	 * 		发送者用户名
+	 *
+	 * @return boolean
+	 */
+	boolean markMessageNotificationReadByUsers(String receiveUsername, String sendUsername);
 }
