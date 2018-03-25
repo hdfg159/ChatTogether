@@ -5,6 +5,8 @@ import hdfg159.chattogether.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,4 +30,8 @@ public interface MessageNotificationRepository extends JpaRepository<MessageNoti
 	List<MessageNotification> findAllByReceiveNotificationUser_UsernameAndIsRead(String receiveNotificationUsername, Integer isRead);
 	
 	Optional<MessageNotification> findFirstByTypeAndSendNotificationUserAndReceiveNotificationUser(Integer type, User sendUser, User receiveUser);
+	
+	@Modifying
+	@Query("delete from MessageNotification mn where mn.receiveNotificationUser.id=?1")
+	int cleanAllMessageNotificationsByUserId(Long userId);
 }

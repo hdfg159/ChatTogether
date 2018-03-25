@@ -40,11 +40,21 @@
                 alert('You are already friends...' + textStatus);
             });
         }
+
+        function cleanAllNotifications() {
+            $.getJSON('[(@{/messagenotification/api/clean})]', {}, function () {
+            }).done(function (data, textStatus, jqXHR) {
+                history.go(0);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert('Request Error!' + errorThrown);
+            });
+        }
     </script>
 </head>
 <body>
 <div th:replace="template::header"></div>
 <input type="button" th:onclick="'markNotificationsAsRead();'" th:value="'Mark All Notifications As Read'"/>
+<input type="button" th:onclick="'cleanAllNotifications();'" th:value="'Clean All Notifications'"/>
 <table>
     <th:block th:each="notification:${notifications}" th:unless="${notifications == null}">
         <tr>

@@ -3,6 +3,8 @@ package hdfg159.chattogether.service.impl;
 import hdfg159.chattogether.data.MessageNotificationRepository;
 import hdfg159.chattogether.data.UserRepository;
 import hdfg159.chattogether.domain.MessageNotification;
+import hdfg159.chattogether.domain.User;
+import hdfg159.chattogether.exception.UserNotFoundException;
 import hdfg159.chattogether.service.MessageNotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,4 +76,14 @@ public class MessageNotificationServiceImpl implements MessageNotificationServic
 		return true;
 	}
 	
+	@Override
+	public boolean cleanAllMessageNotifications(String username) {
+		messageNotificationRepository.cleanAllMessageNotificationsByUserId(fetchUserByUsername(username).getId());
+		return true;
+	}
+	
+	private User fetchUserByUsername(String username) {
+		return userRepository.findByUsernameIgnoreCase(username)
+				.orElseThrow(() -> new UserNotFoundException("For Username:" + username));
+	}
 }

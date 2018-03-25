@@ -7,6 +7,27 @@
     <th:block th:replace="template::generalAsset">
     </th:block>
     <script th:inline="javascript">
+        function deleteUser(userId) {
+            $.getJSON('[(@{/user/api/delete})]', {
+                'id': userId
+            }, function () {
+            }).done(function () {
+                history.go(-1);
+            }).always(function (jqXHR) {
+            });
+        }
+
+        function reset(username) {
+            $.getJSON('[(@{/user/api/reset})]', {
+                'username': username
+            }, function () {
+            }).done(function (data, textStatus, jqXHR) {
+                alert('Reset Success! New PassWord:' + data.data);
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                alert('Request Error!' + errorThrown);
+            });
+        }
+
         function submitUserProfileForm() {
             $('#birthday').val(new Date(Date.parse($('#birthdaySource').val())));
             $('#userProfileForm').submit();
@@ -124,6 +145,10 @@
         <li>
             <a href="#tab_photo" th:if="${#authentication.name==userProfile.user.username}">Profile Photo</a>
         </li>
+        <li>
+            <a href="#tab_manage" sec:authorize="hasAnyRole('ROLE_ADMIN_USER')"
+               th:if="${#authentication.name!=userProfile.user.username}">Manage</a>
+        </li>
     </ul>
     <div id="tab_base">
         <img th:src="@{/{profilePhoto}(profilePhoto=${userProfile.user.userProfile.profilePhoto})}"
@@ -136,6 +161,10 @@
            th:if="${!#strings.equals(userProfile.user.username,#authentication.name)&&isExistUserFriend}"
            th:href="@{/message/chat/{username}(username=${userProfile.user.username})}"
            th:text="'发私信给TA'"></a>
+        <a th:if="${#authentication.name!=userProfile.user.username and !isExistUserFriend}">
+            <input type="button" th:onclick="'addFriend(\''+${userProfile.user.username}+'\');'"
+                   th:value="'Add Friend'"/>
+        </a>
         <form th:id="'userProfileForm'" th:action="@{/userprofile/save}" th:method="post">
             <table th:unless="${userProfile==null}">
                 <tr>
@@ -212,16 +241,6 @@
                     <td>
                         <input type="hidden" th:name="id" th:value="${userProfile.id}">
                     </td>
-                    <td th:if="${#authentication.name!=userProfile.user.username and !isExistUserFriend}">
-                        <input type="button" th:onclick="'addFriend(\''+${userProfile.user.username}+'\');'"
-                               th:value="'Add Friend'"/>
-                    </td>
-                    <td sec:authorize="hasAnyRole('ROLE_ADMIN_USER')"
-                        th:if="${#authentication.name!=userProfile.user.username}">
-                        <input th:id="'switchState'" type="button"
-                               th:onclick="'switchUserAccountState('+${userProfile.user.id}+');'"
-                               th:value="${userProfile.user.getUserAccountState().getIsEnabled()==0?'Enable':'Disable'}"/>
-                    </td>
                 </tr>
             </table>
         </form>
@@ -239,6 +258,18 @@
         <img th:id="'preview_img'">
         <hr>
         <img th:id="'img_cropper'"/>
+    </div>
+    <div id="tab_manage" sec:authorize="hasAnyRole('ROLE_ADMIN_USER')"
+         th:if="${#authentication.name!=userProfile.user.username}">
+        <input type="button" th:onclick="|deleteUser(${userProfile.user.id})|" th:value="'Delete'" value="Delete"/>
+        <input th:id="'switchState'" type="button"
+               th:onclick="'switchUserAccountState('+${userProfile.user.id}+');'"
+               th:value="${userProfile.user.getUserAccountState().getIsEnabled()==0?'Enable Account':'Disable Account'}"/>
+        <input type="button" th:onclick="|location='@{/user/authorize(username=${userProfile.user.username})}'|"
+               th:value="'Authentications'"/>
+        <input type="button"
+               th:value="'Reset Password'" value="Reset Password"
+               th:onclick="|reset('${userProfile.user.username}')|"/>
     </div>
 </div>
 <div th:replace="template::footer"></div>

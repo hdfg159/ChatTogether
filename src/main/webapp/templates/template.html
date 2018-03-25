@@ -10,7 +10,7 @@
     <div sec:authorize="isAuthenticated()">
         <script th:inline="javascript">
             function refreshNotification() {
-                setInterval('getNoticeCount()', 10000);
+                setInterval('getNoticeCount()', 30000);
             }
 
             function getNoticeCount() {
@@ -22,7 +22,7 @@
                         $('#notice_count').text('Message:0');
                     }
                 }).fail(function (jqXHR, textStatus, errorThrown) {
-                    alert('Request Error!' + errorThrown);
+                    console.error('Request Error!' + errorThrown);
                 });
             }
 

@@ -55,7 +55,7 @@
 </head>
 <body>
 <div th:replace="template::header"></div>
-<br/>
+<h4 th:text="|Chat With ${chatUsername}|"></h4>
 <form action="#" th:action="@{/}" th:method="get" th:id="'chatMessageForm'">
     <textarea id="chatMessageTextarea" name="content"></textarea>
     <input type="hidden" th:value="${chatUsername}" name="receiveUsername"/>

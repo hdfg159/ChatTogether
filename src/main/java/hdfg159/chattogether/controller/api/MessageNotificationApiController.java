@@ -55,4 +55,11 @@ public class MessageNotificationApiController {
 		messageNotificationService.markNotificationAsRead(notificationId);
 		return responseSuccess();
 	}
+	
+	@Secured(USER)
+	@GetMapping("/clean")
+	public BaseJsonObject<?> cleanAllNotifications(@CurrentUser UserDetails userDetails) {
+		messageNotificationService.cleanAllMessageNotifications(userDetails.getUsername());
+		return responseSuccess();
+	}
 }

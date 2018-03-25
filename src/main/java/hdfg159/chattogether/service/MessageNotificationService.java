@@ -63,4 +63,14 @@ public interface MessageNotificationService {
 	 * @return boolean
 	 */
 	boolean markMessageNotificationReadByUsers(String receiveUsername, String sendUsername);
+	
+	/**
+	 * 清除某用户的所有通知信息
+	 *
+	 * @param username
+	 * 		用户名
+	 *
+	 * @return boolean
+	 */
+	boolean cleanAllMessageNotifications(String username);
 }
