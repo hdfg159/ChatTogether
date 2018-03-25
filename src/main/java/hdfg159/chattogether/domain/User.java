@@ -94,4 +94,8 @@ public class User implements Serializable {
 	@JsonIgnore
 	@OneToMany(targetEntity = MicroWordCommentAgree.class, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "user")
 	private Set<MicroWordCommentAgree> microWordCommentAgrees;
+	
+	@JsonIgnore
+	@OneToMany(targetEntity = Suggestion.class, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, mappedBy = "user")
+	private Set<Suggestion> suggestions;
 }

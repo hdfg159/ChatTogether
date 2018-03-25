@@ -10,4 +10,5 @@ public class RoleConsts {
 	public static final String ADMIN_MICROWORD = "ROLE_ADMIN_MICROWORD";
 	public static final String ADMIN_COMMENT = "ROLE_ADMIN_COMMENT";
 	public static final String ADMIN_USER = "ROLE_ADMIN_USER";
+	public static final String ADMIN_SUGGESTION = "ROLE_ADMIN_SUGGESTION";
 }
