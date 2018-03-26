@@ -132,8 +132,6 @@ public class UserServiceImpl implements UserService {
 		user.setPassword(encodePassword(user.getPassword()));
 		User savedUser = userRepository.save(user);
 		
-		log.info(savedUser.toString());
-		
 		initUser(savedUser);
 	}
 	

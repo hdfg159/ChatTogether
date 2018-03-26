@@ -26,4 +26,7 @@ public class UserFormVO {
 	@NotBlank(message = "{password.empty}")
 	@Size(min = 5, max = 16, message = "{password.size}")
 	private String password;
+	
+	@NotNull
+	private String validCode;
 }

@@ -3,19 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
+    <th:block th:replace="template::generalAsset">
+    </th:block>
+    <script th:inline="javascript">
+        function changeVaildCode() {
+            $('#validCodeImg').attr('src', '[(@{/validcode})]?' + Math.random());
+        }
+    </script>
 </head>
 <body>
-<form th:action="@{/register}" th:object="${userForm}" th:method="post">
+<form th:action="@{/register}" th:object="${userFormVO}" th:method="post">
     <h3>Register with Username and Password</h3>
     <table>
         <tbody>
         <tr>
             <td><label>User:</label></td>
-            <td><input type="text" th:field="*{username}" th:required="required"/><br/></td>
+            <td>
+                <input type="text" th:field="*{username}" th:required="required"/>
+            </td>
         </tr>
         <tr>
             <td><label>Password:</label></td>
-            <td><input type="password" th:field="*{password}" th:required="required"/><br/></td>
+            <td>
+                <input type="password" th:field="*{password}" th:required="required"/>
+            </td>
+        </tr>
+        <tr>
+            <td><label>Valid Code:</label></td>
+            <td>
+                <input type="text" th:field="*{validCode}" th:required="required"/>
+            </td>
+            <td>
+                <img src="" onclick="changeVaildCode();" th:src="@{/validcode}" th:id="'validCodeImg'" alt="">
+            </td>
+            <td>
+                <span th:text="${validCodeError}" th:if="${validCodeError!=null}"></span>
+            </td>
         </tr>
         <tr>
             <td><input type="submit" th:value="register" value="Register"/></td>

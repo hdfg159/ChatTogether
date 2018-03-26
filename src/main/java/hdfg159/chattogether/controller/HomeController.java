@@ -1,5 +1,6 @@
 package hdfg159.chattogether.controller;
 
+import com.google.code.kaptcha.Producer;
 import hdfg159.chattogether.domain.MicroWord;
 import hdfg159.chattogether.domain.User;
 import hdfg159.chattogether.domain.vo.HomeSearchFormVO;
@@ -15,11 +16,17 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import static com.google.code.kaptcha.Constants.KAPTCHA_SESSION_KEY;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 /**
  * Project:ChatTogether
@@ -29,19 +36,26 @@ import javax.validation.Valid;
 @Slf4j
 @Controller
 @RequestMapping("/")
+@SessionAttributes(value = {KAPTCHA_SESSION_KEY})
 public class HomeController {
 	private final UserService userService;
 	private final MicroWordService microWordService;
+	private final Producer kaptchaProducer;
 	
 	@Autowired
-	public HomeController(UserService userService, MicroWordService microWordService) {
+	public HomeController(UserService userService, MicroWordService microWordService, Producer kaptchaProducer) {
 		this.userService = userService;
 		this.microWordService = microWordService;
+		this.kaptchaProducer = kaptchaProducer;
 	}
 	
 	@PostMapping("/register")
-	public String processRegistration(@Valid UserFormVO userFormVO, Errors errors) {
-		if (errors.hasErrors()) {
+	public String processRegistration(@ModelAttribute(KAPTCHA_SESSION_KEY) String validCode, Model model, @Valid UserFormVO userFormVO, Errors errors) {
+		boolean isValidCodeSuccess = isValidCodeSuccess(validCode, userFormVO);
+		if (!isValidCodeSuccess || errors.hasErrors()) {
+			if (!isValidCodeSuccess) {
+				model.addAttribute("validCodeError", "验证码错误");
+			}
 			return "register";
 		}
 		User user = User.builder()
@@ -52,9 +66,13 @@ public class HomeController {
 		return "redirect:/";
 	}
 	
+	private boolean isValidCodeSuccess(@ModelAttribute(KAPTCHA_SESSION_KEY) String validCode, @Valid UserFormVO userFormVO) {
+		return equalsIgnoreCase(validCode, userFormVO.getValidCode());
+	}
+	
 	@GetMapping("/register")
 	public String forwardRegistration(Model model) {
-		model.addAttribute("userForm", new UserFormVO());
+		model.addAttribute("userFormVO", new UserFormVO());
 		return "register";
 	}
 	
@@ -82,5 +100,23 @@ public class HomeController {
 				break;
 		}
 		return "";
+	}
+	
+	@GetMapping("/validcode")
+	public void getVaildCode(Model model, HttpServletResponse response) {
+		response.setDateHeader("Expires", 0);
+		response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+		response.addHeader("Cache-Control", "post-check=0, pre-check=0");
+		response.setHeader("Pragma", "no-cache");
+		response.setContentType("image/png");
+		String capText = kaptchaProducer.createText();
+		model.addAttribute(KAPTCHA_SESSION_KEY, capText);
+		BufferedImage bi = kaptchaProducer.createImage(capText);
+		try (ServletOutputStream out = response.getOutputStream()) {
+			ImageIO.write(bi, "png", out);
+			out.flush();
+		} catch (IOException e) {
+			log.error("生成验证码失败！");
+		}
 	}
 }
