@@ -38,6 +38,7 @@ public class UserPermissionRepositoryTest {
 		userPermissions.add(buildUserPermission(ADMIN_USER));
 		userPermissions.add(buildUserPermission(ADMIN_MICROWORD));
 		userPermissions.add(buildUserPermission(ADMIN_COMMENT));
+		userPermissions.add(buildUserPermission(ADMIN_SUGGESTION));
 		userPermissionRepository.save(userPermissions);
 	}
 	

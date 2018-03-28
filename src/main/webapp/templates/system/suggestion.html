@@ -59,50 +59,53 @@
         </tbody>
     </table>
 </form>
-<a href="#"
-   th:href="|${#request.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&sort='),'')}&sort=createTime,asc&page=|"
-   th:text="|CreateTime ASC|"></a>
-<a href="#"
-   th:href="|${#request.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&sort='),'')}&sort=createTime,desc&page=|"
-   th:text="|CreateTime DESC|"></a>
-<th:block th:each="suggestion:${suggestions}" sec:authorize="hasAnyRole('ROLE_ADMIN_SUGGESTION')"
-          th:id="suggestionList">
-    <div style="border: dotted">
-        <span th:text="'User:'"></span>
-        <img src=""
-             th:src="@{/{profilePhoto}(profilePhoto=${suggestion.user.userProfile.profilePhoto})}"
-             th:width="32px"
-             th:height="32px"/>
-        <a th:href="@{/userprofile/details/{username}(username=${suggestion.user.username})}" href="#"
-           th:text="${suggestion.user.username}"></a>
-        <div th:text="|Date:${#dates.format(suggestion.createTime,'yyyy-MM-dd HH:mm:ss')}|">
+<th:block sec:authorize="hasAnyRole('ROLE_ADMIN_SUGGESTION')">
+    <a href="#"
+       th:href="|${#request.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&sort='),'')}&sort=createTime,asc&page=|"
+       th:text="|CreateTime ASC|"></a>
+    <a href="#"
+       th:href="|${#request.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&sort='),'')}&sort=createTime,desc&page=|"
+       th:text="|CreateTime DESC|"></a>
+
+    <th:block th:each="suggestion:${suggestions}">
+        <div style="border: dotted">
+            <span th:text="'User:'"></span>
+            <img src=""
+                 th:src="@{/{profilePhoto}(profilePhoto=${suggestion.user.userProfile.profilePhoto})}"
+                 th:width="32px"
+                 th:height="32px"/>
+            <a th:href="@{/userprofile/details/{username}(username=${suggestion.user.username})}" href="#"
+               th:text="${suggestion.user.username}"></a>
+            <div th:text="|Date:${#dates.format(suggestion.createTime,'yyyy-MM-dd HH:mm:ss')}|">
+            </div>
+            <div th:text="|Title:${suggestion.title}|"></div>
+            <div th:text="|Content:${suggestion.content}|"></div>
+            <div>
+                <input type="button" th:onclick="|deleteSuggestion(${suggestion.id})|" th:value="'Delete'"/>
+            </div>
         </div>
-        <div th:text="|Title:${suggestion.title}|"></div>
-        <div th:text="|Content:${suggestion.content}|"></div>
-        <div>
-            <input type="button" th:onclick="|deleteSuggestion(${suggestion.id})|" th:value="'Delete'"/>
-        </div>
-    </div>
+    </th:block>
+
+    <form action="" th:action="${#httpServletRequest.requestURI}" th:method="get"
+          th:onsubmit="'return pageFormSubmit()'">
+        <span th:text="|${suggestions.number+1}/${suggestions.totalPages}Pages|">总页数</span>
+        <input type="number"
+               id="input_page"
+               th:min="1" th:max="${suggestions.totalPages}"
+               th:required="required"/>
+        <input type="hidden" th:name="sort"
+               th:value="${#uris.unescapePath(#strings.substringBefore(#strings.substringAfter(#request.queryString,'sort='),'&page='))}"/>
+        <input type="hidden" id="submit_page" th:name="page"/>
+        <input type="submit" th:value="Go">
+    </form>
+    <a th:unless="${suggestions.number==0}"
+       th:href="|${#httpServletRequest.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&page='),'')}&page=${suggestions.number-1}|"
+       th:text="'Previous'">上一页</a>
+    <a th:unless="${suggestions.number+1==suggestions.totalPages||suggestions.totalElements==0}"
+       th:href="|${#httpServletRequest.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&page='),'')}&page=${suggestions.number+1}|"
+       th:text="'Next'">下一页</a>
+    <span th:text="|${suggestions.numberOfElements}/${suggestions.totalElements} Elements Count|">页面显示数据量</span>
 </th:block>
-<form action="" th:action="${#httpServletRequest.requestURI}" th:method="get"
-      th:onsubmit="'return pageFormSubmit()'">
-    <span th:text="|${suggestions.number+1}/${suggestions.totalPages}Pages|">总页数</span>
-    <input type="number"
-           id="input_page"
-           th:min="1" th:max="${suggestions.totalPages}"
-           th:required="required"/>
-    <input type="hidden" th:name="sort"
-           th:value="${#uris.unescapePath(#strings.substringBefore(#strings.substringAfter(#request.queryString,'sort='),'&page='))}"/>
-    <input type="hidden" id="submit_page" th:name="page"/>
-    <input type="submit" th:value="Go">
-</form>
-<a th:unless="${suggestions.number==0}"
-   th:href="|${#httpServletRequest.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&page='),'')}&page=${suggestions.number-1}|"
-   th:text="'Previous'">上一页</a>
-<a th:unless="${suggestions.number+1==suggestions.totalPages||suggestions.totalElements==0}"
-   th:href="|${#httpServletRequest.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&page='),'')}&page=${suggestions.number+1}|"
-   th:text="'Next'">下一页</a>
-<span th:text="|${suggestions.numberOfElements}/${suggestions.totalElements} Elements Count|">页面显示数据量</span>
 <div th:replace="template::footer"></div>
 </body>
 </html>

@@ -43,15 +43,15 @@ public class UserServiceImplTest {
 		Assert.assertTrue(userService.save(user));
 	}
 	
-	//	@Test
-//	public void saveAdmin() throws Exception {
-//		User user = User.builder()
-//				.username("admin")
-//				.password("admin")
-//				.build();
-//		Assert.assertTrue(userService.save(user));
-//	}
-//
+	@Test
+	public void saveAdmin() throws Exception {
+		User user = User.builder()
+				.username("admin")
+				.password("admin")
+				.build();
+		Assert.assertTrue(userService.save(user));
+	}
+	
 	@Test
 	public void findAll() throws Exception {
 	}
