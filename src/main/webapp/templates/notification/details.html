@@ -93,6 +93,7 @@
                         <td th:text="${#dates.format(notification.modifiedTime,'yy-MM-dd HH:mm:ss')}"></td>
                         <td>
                             <img th:src="@{/{profilePhoto}(profilePhoto=${notification.sendNotificationUser.userProfile.profilePhoto})}"
+                                 class="circle"
                                  th:width="32px"
                                  th:height="32px"/>
                             <a th:href="@{/userprofile/details/{username}(username=${notification.sendNotificationUser.username})}"
