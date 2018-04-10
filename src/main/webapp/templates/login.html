@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>注册</title>
+    <title>登录</title>
     <th:block th:replace="template::generalAsset">
     </th:block>
     <script th:inline="javascript">
@@ -16,51 +16,44 @@
 <main>
     <div class="container">
         <div class="card-panel">
-            <h5>注册</h5>
+            <h5>登录</h5>
             <div class="divider"></div>
             <div class="section">
-
-                <form th:action="@{/register}" th:object="${userFormVO}" th:method="post">
+                <form th:action="@{/login}" th:method="post">
                     <div class="row">
                         <blockquote>
-                            <div th:if="${#fields.hasErrors()}">
-                                <p th:each="error:${#fields.errors()}" th:text="${error}">Input Error</p>
-                            </div>
-                            <p th:text="${validCodeError}"
-                               th:if="${validCodeError!=null}"></p>
+                            <p th:text="${error}"></p>
                         </blockquote>
                         <div class="input-field col s12">
                             <input type="text"
                                    data-length="16"
-                                   th:field="*{username}"
+                                   id="username"
+                                   name="username"
                                    th:required="required"/>
                             <label>用户名</label>
                         </div>
                         <div class="input-field col s12">
                             <input type="password"
+                                   id="password"
                                    data-length="16"
-                                   th:field="*{password}"
+                                   th:name="password"
                                    th:required="required"/>
                             <label>密码</label>
                         </div>
-                        <div class="input-field col s9">
-                            <input type="text"
-                                   th:field="*{validCode}"
-                                   th:required="required"/>
-                            <label>输入验证码</label>
-                        </div>
-                        <div class="input-field col s3">
-                            <img src=""
-                                 onclick="changeVaildCode();"
-                                 th:src="@{/validcode}"
-                                 th:id="'validCodeImg'"
-                                 alt="">
+                        <div class="input-field col s12">
+                            <label>
+                                <input id="remember_me"
+                                       name="remember_me"
+                                       type="checkbox"
+                                       class="filled-in"/>
+                                <span>记住我</span>
+                            </label>
                         </div>
                     </div>
-                    <div class="row  center">
+                    <div class="row center">
                         <button type="submit"
                                 class="waves-effect waves-light btn"
-                                th:text="注册">
+                                th:text="登录">
                         </button>
                     </div>
                 </form>

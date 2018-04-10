@@ -17,7 +17,7 @@
 
         function handleChatMessage(message) {
             if (message === null) {
-                alert('发送消息失败！');
+                M.toast({html: '发送消息失败！' + errorThrown, classes: 'rounded'});
             }
             var msg = JSON.parse(message.body);
             if (msg.sendUsername === '[(${chatUsername})]') {
@@ -34,14 +34,31 @@
             $.getJSON('[(@{/messagenotification/api/mark/users/msg/read(sendUsername=${chatUsername})})]', {}, function () {
             }).done(function (data, textStatus, jqXHR) {
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('Request Error!' + errorThrown);
+                M.toast({html: '请求失败' + errorThrown, classes: 'rounded'});
             });
         }
 
         function addContent(msg) {
             var date = timeStampToString(msg.content.createTime);
-            $('#head')
-                .prepend("<div style='border: dotted;'>" + "<img src='[(@{/})]" + msg.content.sendUser.userProfile.profilePhoto + "' width='32px' height='32px'> <span>" + msg.sendUsername + "</span> <span>" + date + "</span><div>" + emojione.toImage(msg.content.content) + "</div>");
+
+            var name = '[(${#authentication.name})]';
+            var clas;
+            if (name === msg.sendUsername) {
+                clas = 'card-panel right';
+            } else {
+                clas = 'card-panel left';
+            }
+            var content = "<div class='row'"
+                + "<div class='col s12'>"
+                + "<div class='"
+                + clas
+                + "'><img src='[(@{/})]"
+                + msg.content.sendUser.userProfile.profilePhoto
+                + "' class='left circle' width='48px' height='48px'/><span>"
+                + date + "</span><div class='divider'></div><span style='word-break:break-all;'>"
+                + emojione.toImage(msg.content.content)
+                + "</span></div>";
+            $('#head').prepend(content);
         }
 
         function sendChatMessage() {
@@ -55,59 +72,102 @@
 </head>
 <body>
 <div th:replace="template::header"></div>
-<h4 th:text="|Chat With ${chatUsername}|"></h4>
-<form action="#" th:action="@{/}" th:method="get" th:id="'chatMessageForm'">
-    <textarea id="chatMessageTextarea" name="content"></textarea>
-    <input type="hidden" th:value="${chatUsername}" name="receiveUsername"/>
-</form>
-<input type="button" th:value="'Send'" onclick="sendChatMessage();"/>
-<script type="text/javascript">
-    $(document).ready(function () {
-        $('#chatMessageTextarea').emojioneArea({
-            placeholder: '请输入内容',
-            buttonTitle: '按TAB键选择表情',
-            pickerPosition: 'buttom',
-            saveEmojisAs: 'shortname',
-            recentEmojis: false,
-            autocomplete: false,
-            tonesStyle: 'square'
-        });
-    })
-</script>
-<div id="head"></div>
-<th:block th:each="message:${messages}">
-    <div style="border: dotted">
-        <img th:src="@{/{profilePhoto}(profilePhoto=${message.sendUser.userProfile.profilePhoto})}"
-             th:width="32px"
-             th:height="32px"/>
-        <span th:text="${message.sendUser.username}"></span>
-        <span th:text="${#dates.format(message.createTime,'yyyy-MM-dd HH:mm:ss')}"></span>
-        <div class="convert-emoji" th:utext="${message.content}"></div>
+<main>
+    <div class="container">
+        <div class="card-panel">
+            <h5 th:text="|正在和${chatUsername}对话|"></h5>
+            <div class="divider"></div>
+            <div class="section">
+                <div th:class="row">
+                    <div class="col s12">
+                        <div class="row">
+                            <form action="#" th:action="@{/}" th:method="get" th:id="'chatMessageForm'">
+                                <textarea id="chatMessageTextarea" name="content"></textarea>
+                                <input type="hidden" th:value="${chatUsername}" name="receiveUsername"/>
+                            </form>
+                            <div class="right">
+                                <br>
+                                <button th:type="button"
+                                        id="btnSendComment"
+                                        class="waves-effect waves-light btn"
+                                        onclick="sendChatMessage()">
+                                    <i class="material-icons">send</i>
+                                </button>
+                            </div>
+                        </div>
+                        <script type="text/javascript">
+                            $(document).ready(function () {
+                                $('#chatMessageTextarea').emojioneArea({
+                                    placeholder: '请输入内容',
+                                    buttonTitle: '按TAB键选择表情',
+                                    pickerPosition: 'buttom',
+                                    saveEmojisAs: 'shortname',
+                                    recentEmojis: false,
+                                    autocomplete: false,
+                                    tonesStyle: 'square'
+                                });
+                            })
+                        </script>
+                        <div id="head"></div>
+                        <div class="row" th:each="message:${messages}">
+                            <div class="col s12">
+                                <div th:class="${#authentication.name==message.sendUser.username?'card-panel right':'card-panel left'}">
+                                    <img th:src="@{/{profilePhoto}(profilePhoto=${message.sendUser.userProfile.profilePhoto})}"
+                                         class="left circle"
+                                         th:width="48px"
+                                         th:height="48px"/>
+                                    <span th:text="${#dates.format(message.createTime,'yy-MM-dd HH:mm:ss')}"></span>
+                                    <div class="divider"></div>
+                                    <span class="convert-emoji"
+                                          th:utext="${message.content}"
+                                          style="word-break:break-all;"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <form action=""
+                              th:action="@{/message/chat/{username}(username=${chatUsername})}"
+                              th:method="get"
+                              class="col s12"
+                              th:onsubmit="'return pageFormSubmit()'">
+                            <div class="input-field col s3 center">
+                                <a th:unless="${messages.number==0}"
+                                   class="waves-effect waves-light btn"
+                                   th:href="@{/message/chat/{username}(page=${messages.number - 1},username=${chatUsername})}"
+                                   th:text="'上一页'"></a>
+                            </div>
+                            <div class="input-field col s3 center">
+                                <a th:unless="${messages.number+1==messages.totalPages||messages.totalElements==0}"
+                                   class="waves-effect waves-light btn"
+                                   th:href="@{/message/chat/{username}(page=${messages.number+1},username=${chatUsername})}"
+                                   th:text="'下一页'"></a>
+                            </div>
+                            <div class="input-field col s3">
+                                <input type="number"
+                                       id="input_page"
+                                       th:min="1"
+                                       th:max="${messages.totalPages}"
+                                       th:required="required"/>
+                                <label for="input_page"
+                                       th:text="|当前第${messages.number+1}页/总${messages.totalPages}页|"></label>
+                            </div>
+                            <input type="hidden"
+                                   th:name="sort"
+                                   th:value="${#uris.unescapePath(#strings.substringBefore(#strings.substringAfter(#request.queryString,'sort='),'&page='))}"/>
+                            <input type="hidden" id="submit_page" th:name="page"/>
+                            <div class="input-field col s3">
+                                <button type="submit"
+                                        class="waves-effect waves-light btn center">跳转
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</th:block>
-<script th:inline="javascript">
-
-</script>
-<div>
-    <form action="" th:action="@{/message/chat/{username}(username=${chatUsername})}" th:method="get"
-          th:onsubmit="'return pageFormSubmit()'">
-        <span th:text="|${messages.number+1}/${messages.totalPages}Pages|">总页数</span>
-        <input type="number"
-               th:min="1"
-               th:max="${messages.totalPages}"
-               th:id="input_page"
-               th:required="required"/>
-        <input type="hidden" th:name="page" th:id="submit_page"/>
-        <input type="submit" th:value="Go">
-    </form>
-    <a th:unless="${messages.number == 0}"
-       th:href="@{/message/chat/{username}(page=${messages.number - 1},username=${chatUsername})}"
-       th:text="'Previous'">上一页</a>
-    <a th:unless="${messages.number+1==messages.totalPages||messages.totalElements==0}"
-       th:href="@{/message/chat/{username}(page=${messages.number+1},username=${chatUsername})}"
-       th:text="'Next'">下一页</a>
-    <span th:text="|${messages.numberOfElements}/${messages.totalElements} Element Counts|">页面显示数据量</span>
-</div>
+</main>
 <div th:replace="template::footer"></div>
 </body>
 </html>

@@ -11,12 +11,16 @@
             }).done(function (data, textStatus, jqXHR) {
                 history.go(0);
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('Request Error!' + errorThrown);
+                M.toast({html: '操作失败!' + errorThrown, classes: 'rounded'});
             });
         }
 
         function markNotificationAsRead(notificationId, href, isRead) {
             if (isRead === 1) {
+                if (href.search('/userfriend/api/accept/') !== -1) {
+                    M.toast({html: '已经接受好友请求', classes: 'rounded'});
+                    return;
+                }
                 window.location.href = href;
                 return;
             }
@@ -28,16 +32,16 @@
                     window.location.href = href;
                 }
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('Request Error!' + errorThrown);
+                M.toast({html: '操作失败!' + errorThrown, classes: 'rounded'});
             });
         }
 
         function acceptUserFriend(href) {
             $.getJSON(href, {}, function () {
             }).done(function (data, textStatus, jqXHR) {
-                alert("accept userfriend success!");
+                M.toast({html: '已经接受好友请求', classes: 'rounded'});
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('You are already friends...' + textStatus);
+                M.toast({html: '你们已经是好友', classes: 'rounded'});
             });
         }
 
@@ -46,56 +50,127 @@
             }).done(function (data, textStatus, jqXHR) {
                 history.go(0);
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('Request Error!' + errorThrown);
+                M.toast({html: '请求错误', classes: 'rounded'});
             });
         }
     </script>
 </head>
 <body>
 <div th:replace="template::header"></div>
-<input type="button" th:onclick="'markNotificationsAsRead();'" th:value="'Mark All Notifications As Read'"/>
-<input type="button" th:onclick="'cleanAllNotifications();'" th:value="'Clean All Notifications'"/>
-<table>
-    <th:block th:each="notification:${notifications}" th:unless="${notifications == null}">
-        <tr>
-            <td th:text="${#dates.format(notification.modifiedTime,'yy-MM-dd HH:mm:ss')}"></td>
-            <td><img
-                    th:src="@{/{profilePhoto}(profilePhoto=${notification.sendNotificationUser.userProfile.profilePhoto})}"
-                    th:width="32px"
-                    th:height="32px"/>
-                <a th:href="@{/userprofile/details/{username}(username=${notification.sendNotificationUser.username})}"
-                   th:text="${notification.sendNotificationUser.username}"></a>
-            </td>
-            <td>
-                <a href="javascript:void(0);"
-                   th:text="${notification.content}"
-                   th:onclick="|markNotificationAsRead(${notification.id},'@{/{url}(url=${notification.url})}',${notification.isRead})|"></a>
-            </td>
-            <td>
-                <span th:text="${notification.isRead == 1?'[Read]':'[UnRead]'}"></span>
-            </td>
-        </tr>
-    </th:block>
-</table>
-<div th:with="queryStringWithoutPage=${#strings.substringBefore(#httpServletRequest.queryString,'&page')},queryString=${#httpServletRequest.queryString}">
-    <form th:action="@{/messagenotification/shownotifications}"
-          method="get"
-          th:onsubmit="'return pageFormSubmit()'">
-        <span th:text="|${notifications.number+1}/${notifications.totalPages}Pages|">总页数</span>
-        <input type="number" th:min="1" th:max="${notifications.totalPages}" th:id="input_page"
-               th:required="required"/>
-        <input type="hidden" name="page" id="submit_page"/>
-        <input type="submit" th:value="Go">
-    </form>
-    <a th:unless="${notifications.number == 0}"
-       th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?'':queryStringWithoutPage}&page=${notifications.number - 1}|"
-       th:text="'Previous'">上一页</a>
-    <a th:unless="${notifications.number+1==notifications.totalPages||notifications.totalElements==0}"
-       th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?'':queryStringWithoutPage}&page=${notifications.number + 1}|"
-       th:text="'Next'">下一页</a>
-    <br/>
-    <span th:text="|${notifications.numberOfElements}/${notifications.totalElements} Elements Count|">页面显示数据量</span>
-</div>
+<main>
+    <div class="container">
+        <div class="card-panel">
+            <h5 th:text="'通知管理'"></h5>
+            <div class="divider"></div>
+            <div class="section">
+                <div class="right">
+                    <button type="button"
+                            class="waves-effect waves-light btn-flat tooltipped"
+                            onclick="markNotificationsAsRead();"
+                            data-position="top"
+                            data-tooltip="全部标记已读">
+                        <i class="material-icons">done_all</i>
+                    </button>
+                    <button type="button"
+                            class="waves-effect waves-light btn-flat tooltipped"
+                            onclick="cleanAllNotifications();"
+                            data-position="top"
+                            data-tooltip="清除所有">
+                        <i class="material-icons">clear_all</i>
+                    </button>
+                </div>
+                <table>
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="notification:${notifications}" th:unless="${notifications == null}">
+                        <td th:text="${#dates.format(notification.modifiedTime,'yy-MM-dd HH:mm:ss')}"></td>
+                        <td>
+                            <img th:src="@{/{profilePhoto}(profilePhoto=${notification.sendNotificationUser.userProfile.profilePhoto})}"
+                                 th:width="32px"
+                                 th:height="32px"/>
+                            <a th:href="@{/userprofile/details/{username}(username=${notification.sendNotificationUser.username})}"
+                               th:text="${notification.sendNotificationUser.username}"></a>
+                        </td>
+                        <td>
+                            <a href="javascript:void(0);"
+                               th:text="${notification.content}"
+                               th:onclick="|markNotificationAsRead(${notification.id},'@{/{url}(url=${notification.url})}',${notification.isRead})|"></a>
+                        </td>
+                        <td>
+                        <span th:class="${notification.isRead==1?'new badge blue':'new badge red'}"
+                              th:data-badge-caption="${notification.isRead==1?'已读':'未读'}"></span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <form action="" th:action="@{/messagenotification/shownotifications}"
+                      th:method="get"
+                      th:onsubmit="'return pageFormSubmit()'">
+                    <div class="input-field col s3 center">
+                        <a th:unless="${notifications.number==0}"
+                           class="waves-effect waves-light btn"
+                           th:href="@{/messagenotification/shownotifications/(page=${notifications.number - 1})}"
+                           th:text="'上一页'"></a>
+                    </div>
+                    <div class="input-field col s3 center">
+                        <a th:unless="${notifications.number+1==notifications.totalPages||notifications.totalElements==0}"
+                           class="waves-effect waves-light btn"
+                           th:href="@{/messagenotification/shownotifications/(page=${notifications.number+1})}"
+                           th:text="'下一页'"></a>
+                    </div>
+                    <div class="input-field col s3">
+                        <input type="number"
+                               th:min="1"
+                               th:max="${notifications.totalPages}"
+                               id="input_page"
+                               th:required="required"/>
+                        <label for="input_page"
+                               th:text="|当前第${notifications.number+1}页/总${notifications.totalPages}页|"></label>
+                    </div>
+                    <input type="hidden" th:name="page" th:id="submit_page"/>
+                    <div class="input-field col s3">
+                        <button type="submit"
+                                class="waves-effect waves-light btn center">跳转
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<!--<div th:with="queryStringWithoutPage=${#strings.substringBefore(#httpServletRequest.queryString,'&page')},queryString=${#httpServletRequest.queryString}">-->
+<!--<form th:action="@{/messagenotification/shownotifications}"-->
+<!--method="get"-->
+<!--th:onsubmit="'return pageFormSubmit()'">-->
+<!--<span th:text="|${notifications.number+1}/${notifications.totalPages}Pages|">总页数</span>-->
+<!--<input type="number" th:min="1" th:max="${notifications.totalPages}" th:id="input_page"-->
+<!--th:required="required"/>-->
+<!--<input type="hidden" name="page" id="submit_page"/>-->
+<!--<input type="submit" th:value="Go">-->
+<!--</form>-->
+<!--<a th:unless="${notifications.number == 0}"-->
+<!--th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?'':queryStringWithoutPage}&page=${notifications.number - 1}|"-->
+<!--th:text="'Previous'">上一页</a>-->
+<!--<a th:unless="${notifications.number+1==notifications.totalPages||notifications.totalElements==0}"-->
+<!--th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?'':queryStringWithoutPage}&page=${notifications.number + 1}|"-->
+<!--th:text="'Next'">下一页</a>-->
+<!--<br/>-->
+<!--<span th:text="|${notifications.numberOfElements}/${notifications.totalElements} Elements Count|">页面显示数据量</span>-->
+<!--</div>-->
+<script>
+    $(document).ready(function () {
+        $('.tooltipped').tooltip();
+    });
+</script>
 <div th:replace="template::footer"></div>
 </body>
 </html>

@@ -45,11 +45,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.addFilterBefore(encodingFilter, CsrfFilter.class);
 		
 		http.formLogin()
+				.loginPage("/login")
 				.and().authorizeRequests()
-				.antMatchers("/resources/js/**", "/resources/css/**", "/webjars/**"
-						, "/images/**"
-						, "/register", "/validcode").permitAll()
-				.anyRequest()
-				.authenticated();
+//				.antMatchers("/resources/js/**"
+//						, "/resources/css/**"
+//						, "/webjars/**"
+//						, "/images/**"
+//						, "/register"
+//						, "/login"
+//						, "/validcode").permitAll()
+//				.anyRequest().authenticated()
+				.anyRequest().permitAll()
+				.and()
+				.rememberMe()
+				.tokenValiditySeconds(604800)
+				.key("chatTogetherKey");
 	}
 }

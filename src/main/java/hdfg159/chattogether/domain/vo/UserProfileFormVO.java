@@ -24,7 +24,7 @@ public class UserProfileFormVO {
 	
 	private String wechat;
 	
-	@Past
+	@Past(message = "{birthday.past}")
 	private Date birthday;
 	
 	@Range(min = 0, max = 199)
@@ -34,12 +34,12 @@ public class UserProfileFormVO {
 	private String sex;
 	
 	@NotBlank
-	@Pattern(regexp = "^(13[0-9]|14[579]|15[0-3,5-9]|17[0135678]|18[0-9])\\d{8}$")
+	@Pattern(regexp = "^(13[0-9]|14[579]|15[0-3,5-9]|17[0135678]|18[0-9])\\d{8}$", message = "{phonenumber.error}")
 	private String phoneNumber;
 	
-	@Email
+	@Email(message = "{email.error}")
 	private String email;
 	
-	@NotBlank
+	@NotBlank(message = "{selfintroduction.empty}")
 	private String selfIntroduction;
 }

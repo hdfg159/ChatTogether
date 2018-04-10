@@ -3,11 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <title>错误</title>
+    <th:block th:replace="template::generalAsset">
+    </th:block>
 </head>
 <body>
-<div th:text="'不好意思，访问遇到错误!'">Test Error</div>
-<div th:text="'错误信息:'+${exception.message}">错误信息</div>
-<label th:text="'错误源：'"></label><br/>
-<div th:text="${exception.stackTrace}">错误原因</div>
+<div th:replace="template::header"></div>
+<main>
+    <div class="container">
+        <ul class="collapsible">
+            <li class="active">
+                <div class="collapsible-header">
+                    <i class="material-icons">event_note</i>
+                    <span>不好意思，访问遇到错误!</span>
+                </div>
+                <div class="collapsible-body">
+                    <p th:text="${exception.message}"></p>
+                </div>
+            </li>
+            <li>
+                <div class="collapsible-header">
+                    <i class="material-icons">error</i>
+                    <span>错误源</span>
+                </div>
+                <div class="collapsible-body">
+                    <p style="word-wrap:break-word;"
+                       th:text="${exception.stackTrace}"></p>
+                </div>
+            </li>
+        </ul>
+        <script>
+            $(document).ready(function () {
+                $('.collapsible').collapsible();
+            });
+        </script>
+    </div>
+</main>
+<div th:replace="template::footer"></div>
 </body>
 </html>

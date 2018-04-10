@@ -22,9 +22,9 @@
                 'username': username
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
-                alert('Reset Success! New PassWord:' + data.data);
+                M.toast({html: '重置成功!新密码为:' + data.data, classes: 'rounded'});
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('Request Error!' + errorThrown);
+                M.toast({html: '重置密码失败!' + errorThrown, classes: 'rounded'});
             });
         }
 
@@ -38,9 +38,9 @@
                 'username': username
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
-                alert('Add Friend Request Success!');
+                M.toast({html: '申请添加好友成功', classes: 'rounded'});
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('Request Error!' + errorThrown);
+                M.toast({html: '申请添加好友失败' + errorThrown, classes: 'rounded'});
             });
         }
 
@@ -50,13 +50,17 @@
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
                 var switchState = $('#switchState');
-                if (switchState.val() === 'Disable') {
-                    switchState.val('Enable');
-                    return;
+                var tip;
+                if (switchState.text() === '启用账户') {
+                    switchState.attr('class', 'waves-effect waves-light btn');
+                    tip = '禁用账户';
+                } else {
+                    switchState.attr('class', 'waves-effect waves-light btn-flat');
+                    tip = '启用账户';
                 }
-                switchState.val('Disable');
+                switchState.text(tip);
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('Request Error!' + errorThrown);
+                M.toast({html: '切换用户状态失败!' + errorThrown, classes: 'rounded'});
             });
         }
 
@@ -105,7 +109,7 @@
                 imageSmoothingQuality: 'high'
             }).toBlob(function (blob) {
                 if (blob === null) {
-                    alert('Error!Don\'t support this file!');
+                    M.toast({html: '不支持文件类型', classes: 'rounded'});
                     return;
                 }
                 var formData = new FormData();
@@ -117,10 +121,10 @@
                     processData: false,
                     contentType: false,
                     success: function (data, textStatus, jqXHR) {
-                        alert('保存成功');
+                        M.toast({html: '保存成功', classes: 'rounded'});
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        alert('Request Error!' + errorThrown);
+                        M.toast({html: '上传头像失败' + errorThrown, classes: 'rounded'});
                     }
                 });
             });
@@ -134,151 +138,257 @@
 </head>
 <body>
 <div th:replace="template::header"></div>
-<h3>
-    <span th:text="'UserDetails'"></span>
-</h3>
-<div id="tabs">
-    <ul>
-        <li>
-            <a href="#tab_base">Basic Information</a>
-        </li>
-        <li>
-            <a href="#tab_photo" th:if="${#authentication.name==userProfile.user.username}">Profile Photo</a>
-        </li>
-        <li>
-            <a href="#tab_manage" sec:authorize="hasAnyRole('ROLE_ADMIN_USER')"
-               th:if="${#authentication.name!=userProfile.user.username}">Manage</a>
-        </li>
-    </ul>
-    <div id="tab_base">
-        <img th:src="@{/{profilePhoto}(profilePhoto=${userProfile.user.userProfile.profilePhoto})}"
-             th:width="64px"
-             th:height="64px"/>
-        <a href="#"
-           th:href="@{/microword/{userId}(userId=${userProfile.user.username})}"
-           th:text="'TA发表的微说'"></a>
-        <a href="#"
-           th:if="${!#strings.equals(userProfile.user.username,#authentication.name)&&isExistUserFriend}"
-           th:href="@{/message/chat/{username}(username=${userProfile.user.username})}"
-           th:text="'发私信给TA'"></a>
-        <a th:if="${#authentication.name!=userProfile.user.username and !isExistUserFriend}">
-            <input type="button" th:onclick="'addFriend(\''+${userProfile.user.username}+'\');'"
-                   th:value="'Add Friend'"/>
-        </a>
-        <form th:id="'userProfileForm'" th:action="@{/userprofile/save}" th:method="post">
-            <table th:unless="${userProfile==null}">
-                <tr>
-                    <td th:text="'UserId:'"></td>
-                    <td th:text="${userProfile.user.id}"></td>
-                    <td th:text="'Sex:'"></td>
-                    <td>
-                        <select th:name="'sex'"
-                                th:disabled="${!#strings.equals(userProfile.user.username,#authentication.name)}">
-                            <option value="男" th:selected="${userProfile.sex=='男'}">男</option>
-                            <option value="女" th:selected="${userProfile.sex=='女'}">女</option>
-                        </select>
-                    </td>
-                    <td th:text="'Age:'"></td>
-                    <td>
-                        <input th:disabled="${#authentication.name!=userProfile.user.username}" th:name="'age'"
-                               th:type="number" th:value="${userProfile.age}" value="年龄"
-                               type="text"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td th:text="'Username:'"></td>
-                    <td th:text="${userProfile.user.username}"></td>
-                    <td th:text="'QQ:'"></td>
-                    <td>
-                        <input th:disabled="${#authentication.name!=userProfile.user.username}" th:name="'qq'"
-                               type="text" value="QQ" th:value="${userProfile.qq}"/>
-                    </td>
-                    <td th:text="'Birthday:'"></td>
-                    <td>
-                        <input th:disabled="${#authentication.name!=userProfile.user.username}" type="date"
-                               th:id="'birthdaySource'"
-                               th:value="${#dates.format(userProfile.birthday,'yyyy-MM-dd')}"/>
-                        <input type="hidden" th:id="'birthday'" th:name="'birthday'"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td th:text="'WeChat:'">
-                    </td>
-                    <td>
-                        <input th:disabled="${#authentication.name!=userProfile.user.username}" name="wechat"
-                               th:required="required" type="text"
-                               th:value="${userProfile.wechat}"/>
-                    </td>
-                    <td th:text="'PhoneNumber:'"></td>
-                    <td>
-                        <input th:disabled="${#authentication.name!=userProfile.user.username}"
-                               name="phoneNumber" type="text" maxlength="11" th:required="required"
-                               th:value="${userProfile.phoneNumber}"/>
-                    </td>
-                    <td th:text="'CreateTime:'"></td>
-                    <td th:text="${#dates.format(userProfile.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                </tr>
-                <tr>
-                    <td th:text="'Email:'"></td>
-                    <td>
-                        <input th:disabled="${#authentication.name!=userProfile.user.username}" th:name="'email'"
-                               th:required="required" type="email"
-                               th:value="${userProfile.email}"/>
-                    </td>
-                    <td th:text="'SelfIntroduction:'"></td>
-                    <td>
-                        <input th:disabled="${#authentication.name!=userProfile.user.username}"
-                               th:name="'selfIntroduction'"
-                               th:required="required" type="text"
-                               th:value="${userProfile.selfIntroduction}"/>
-                    </td>
-                    <td th:text="'UpdateTime:'"></td>
-                    <td th:text="${#dates.format(userProfile.modifiedTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                </tr>
-                <tr>
-                    <td th:if="${#authentication.name == userProfile.user.username}">
-                        <input type="button" th:onclick="'submitUserProfileForm()'" value="save"></td>
-                    <td>
-                        <input type="hidden" th:name="id" th:value="${userProfile.id}">
-                    </td>
-                </tr>
-            </table>
-        </form>
-        <ul th:if="${errors!=null}">
-            <li th:each="error:${errors.fieldErrors}"
-                th:text="|${error.field}-${error.defaultMessage}:输入值为${error.rejectedValue}|">
-            </li>
-        </ul>
+<main>
+    <div class="container">
+        <div class="card-panel">
+            <h5 th:text="'用户资料'"></h5>
+            <div class="divider"></div>
+            <div class="section">
+                <div class="row">
+                    <div class="col s12">
+                        <ul class="tabs">
+                            <li class="tab col s4">
+                                <a href="#tab_base" th:text="|基本信息|"></a>
+                            </li>
+                            <li class="tab col s4" th:if="${#authentication.name==userProfile.user.username}">
+                                <a href="#tab_photo"
+                                   th:text="|头像管理|"></a>
+                            </li>
+                            <li class="tab col s4"
+                                sec:authorize="hasAnyRole('ROLE_ADMIN_USER')"
+                                th:if="${#authentication.name!=userProfile.user.username}">
+                                <a href="#tab_manage"
+                                   th:text="|当前用户管理|"></a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div id="tab_base">
+                        <div class="col s12 center">
+                            <img class="circle responsive-img tooltipped"
+                                 data-position="top"
+                                 th:data-tooltip="|用户ID:${userProfile.user.id}|"
+                                 th:src="@{/{profilePhoto}(profilePhoto=${userProfile.user.userProfile.profilePhoto})}"
+                                 th:width="72px" th:height="72px"/>
+                        </div>
+                        <div class="col s12 center">
+                            <h6 th:text="${userProfile.user.username}"></h6>
+                        </div>
+                        <div class="col s12">
+                            <div class="col s12 center"
+                                 th:if="${#strings.equals(userProfile.user.username,#authentication.name)}">
+                                <a class="waves-effect waves-teal btn-flat"
+                                   th:href="@{/microword/{userId}(userId=${userProfile.user.username})}"
+                                   th:text="'我的微说'"></a>
+                            </div>
+                            <div class="col s6 center"
+                                 th:if="${!#strings.equals(userProfile.user.username,#authentication.name)}">
+                                <a class="waves-effect waves-teal btn-flat"
+                                   th:href="@{/microword/{userId}(userId=${userProfile.user.username})}"
+                                   th:text="'TA的微说'"></a>
+                            </div>
+                            <div class="col s6 center"
+                                 sec:authorize="isAuthenticated()">
+                                <a th:if="${!#strings.equals(userProfile.user.username,#authentication.name)&&isExistUserFriend}"
+                                   class="waves-effect waves-teal btn-flat"
+                                   th:href="@{/message/chat/{username}(username=${userProfile.user.username})}"
+                                   th:text="'发私信'"></a>
+                            </div>
+                            <div class="col s6 center"
+                                 sec:authorize="isAuthenticated()">
+                                <input class="waves-effect waves-teal btn-flat"
+                                       type="button"
+                                       th:if="${#authentication.name!=userProfile.user.username and !isExistUserFriend}"
+                                       th:onclick="'addFriend(\''+${userProfile.user.username}+'\');'"
+                                       th:value="'添加好友'"/>
+                            </div>
+                        </div>
+                        <div class="col s10 offset-s1">
+                            <blockquote th:if="${errors!=null}">
+                                <p th:each="error:${errors.fieldErrors}"
+                                   th:text="|${error.defaultMessage}-当前输入值:${error.rejectedValue}|">
+                                </p>
+                            </blockquote>
+                        </div>
+
+                        <form th:id="'userProfileForm'"
+                              th:action="@{/userprofile/save}"
+                              th:method="post"
+                              class="col s12"
+                              th:unless="${userProfile==null}">
+                            <div class="row">
+                                <div class="input-field col s5 offset-s1">
+                                    <select name="sex"
+                                            th:disabled="${!#strings.equals(userProfile.user.username,#authentication.name)}">
+                                        <option value="男" th:selected="${userProfile.sex=='男'}">男</option>
+                                        <option value="女" th:selected="${userProfile.sex=='女'}">女</option>
+                                    </select>
+                                    <label th:text="|选择性别|"></label>
+                                </div>
+                                <div class="input-field col s5">
+                                    <input th:disabled="${#authentication.name!=userProfile.user.username}"
+                                           name="age"
+                                           id="age"
+                                           type="number" th:value="${userProfile.age}"/>
+                                    <label for="age" th:text="|年龄|"></label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s5 offset-s1">
+                                    <input th:disabled="${#authentication.name!=userProfile.user.username}"
+                                           type="text" class="datepicker"
+                                           id="birthdaySource"
+                                           th:value="${#dates.format(userProfile.birthday,'yyyy-M-d')}"/>
+                                    <input type="hidden" th:id="'birthday'" th:name="'birthday'"/>
+                                    <label th:text="|生日|" for="birthdaySource"></label>
+                                </div>
+                                <div class="input-field col s5">
+                                    <input th:disabled="${#authentication.name!=userProfile.user.username}"
+                                           name="qq"
+                                           type="number"
+                                           id="qq"
+                                           th:value="${userProfile.qq}"/>
+                                    <label for="qq" th:text="|QQ|"></label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s5 offset-s1">
+                                    <input th:disabled="${#authentication.name!=userProfile.user.username}"
+                                           data-length="11"
+                                           type="text"
+                                           maxlength="11"
+                                           name="phoneNumber"
+                                           id="phoneNumber"
+                                           th:required="required"
+                                           th:value="${userProfile.phoneNumber}"/>
+                                    <label th:text="|手机号码|" for="phoneNumber"></label>
+                                </div>
+                                <div class="input-field col s5">
+                                    <input th:disabled="${#authentication.name!=userProfile.user.username}"
+                                           name="wechat"
+                                           th:required="required"
+                                           type="text"
+                                           id="wechat"
+                                           th:value="${userProfile.wechat}"/>
+                                    <label for="wechat" th:text="|微信|"></label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s5 offset-s1">
+                                <textarea th:name="'selfIntroduction'"
+                                          data-length="50"
+                                          id="selfIntroduction"
+                                          class="materialize-textarea"
+                                          th:disabled="${#authentication.name!=userProfile.user.username}"
+                                          th:text="${userProfile.selfIntroduction}"></textarea>
+                                    <label th:text="|个人说明|"></label>
+                                </div>
+                                <div class="input-field col s5">
+                                    <input th:disabled="${#authentication.name!=userProfile.user.username}"
+                                           type="email"
+                                           name="email"
+                                           id="email"
+                                           class="validate"
+                                           th:required="required"
+                                           th:value="${userProfile.email}"/>
+                                    <label th:text="|Email|" for="email"></label>
+                                    <span class="helper-text" data-error="wrong" data-success="right"></span>
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s5  offset-s1">
+                                    <input type="text"
+                                           th:value="${#dates.format(userProfile.createTime, 'yyyy-MM-dd HH:mm:ss')}"
+                                           disabled/>
+                                    <label th:text="|用户注册时间|"></label>
+                                </div>
+                                <div class="input-field col s5">
+                                    <input type="text"
+                                           th:value="${#dates.format(userProfile.modifiedTime, 'yyyy-MM-dd HH:mm:ss')}"
+                                           disabled/>
+                                    <label th:text="|用户资料更新时间|"></label>
+                                    <input type="hidden" th:name="id" th:value="${userProfile.id}">
+                                </div>
+                                <div class="input-field col s12 center"
+                                     th:if="${#authentication.name==userProfile.user.username}">
+                                    <button th:onclick="'submitUserProfileForm()'"
+                                            th:text="保存"
+                                            class="waves-effect waves-light btn">
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="tab_photo" th:if="${#authentication.name==userProfile.user.username}">
+                        <div class="row">
+                            <div class="col s12">
+                                <div class="file-field input-field">
+                                    <div class="btn">
+                                        <span>选择图片</span>
+                                        <input type="file"
+                                               th:id="'cut_img'"
+                                               onchange="inputProfilePhoto(this);"
+                                               accept=".png,.jpg,.jpeg"/>
+                                    </div>
+                                    <div class="file-path-wrapper">
+                                        <input class="file-path validate" type="text"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col s3">
+                                <button th:text="'上传'"
+                                        class="waves-effect waves-light btn center"
+                                        onclick="uploadProfilePhoto();">
+                                </button>
+                            </div>
+                            <div class="col s4">
+                                <img th:id="'preview_img'"/>
+                            </div>
+                        </div>
+                        <img th:id="'img_cropper'"/>
+                    </div>
+                </div>
+
+                <div id="tab_manage"
+                     sec:authorize="hasAnyRole('ROLE_ADMIN_USER')"
+                     th:if="${#authentication.name!=userProfile.user.username}"
+                     class="row">
+                    <div class="center">
+                        <button type="button"
+                                class="waves-effect waves-light btn center"
+                                th:onclick="|deleteUser(${userProfile.user.id})|"
+                                th:text="'删除用户'"></button>
+                        <button type="button"
+                                class="waves-effect waves-light btn center"
+                                th:onclick="|location.href='@{/user/authorize(username=${userProfile.user.username})}'|"
+                                th:text="'授权用户'"></button>
+                        <button th:text="'重置密码'"
+                                class="waves-effect waves-light btn center"
+                                th:onclick="|reset('${userProfile.user.username}')|">
+                        </button>
+                        <button th:class="|${userProfile.user.getUserAccountState().getIsEnabled()==0?'btn-flat':'btn'} waves-effect waves-light|"
+                                th:onclick="|switchUserAccountState(${userProfile.user.id})|"
+                                th:id="|switchState|"
+                                th:text="|${userProfile.user.getUserAccountState().getIsEnabled()!=0?'禁用账户':'启用账户'}|">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="tab_photo" th:if="${#authentication.name==userProfile.user.username}">
-        <input type="file" th:id="'cut_img'" onchange="inputProfilePhoto(this);" accept=".png,.jpg,.jpeg"/>
-        <input type="button" th:value="'Upload Profile Photo'" onclick="uploadProfilePhoto();"/>
-        <hr>
-        <div th:text="'Preview Image:'"></div>
-        <img th:id="'preview_img'">
-        <hr>
-        <img th:id="'img_cropper'"/>
-    </div>
-    <div id="tab_manage" sec:authorize="hasAnyRole('ROLE_ADMIN_USER')"
-         th:if="${#authentication.name!=userProfile.user.username}">
-        <input type="button" th:onclick="|deleteUser(${userProfile.user.id})|" th:value="'Delete'" value="Delete"/>
-        <input th:id="'switchState'" type="button"
-               th:onclick="'switchUserAccountState('+${userProfile.user.id}+');'"
-               th:value="${userProfile.user.getUserAccountState().getIsEnabled()==0?'Enable Account':'Disable Account'}"/>
-        <input type="button" th:onclick="|location='@{/user/authorize(username=${userProfile.user.username})}'|"
-               th:value="'Authentications'"/>
-        <input type="button"
-               th:value="'Reset Password'" value="Reset Password"
-               th:onclick="|reset('${userProfile.user.username}')|"/>
-    </div>
-</div>
+</main>
 <div th:replace="template::footer"></div>
 <script>
-    $(function () {
-        $("#tabs").tabs();
+    $(document).ready(function () {
+        $('.tabs').tabs();
+        $('.tooltipped').tooltip();
+        $('select').select();
+        $('.datepicker').datepicker({format: "yyyy-mm-dd"});
+        $('textarea#selfIntroduction,input#phoneNumber').characterCounter();
     });
 </script>
-<link rel="stylesheet" th:type="'text/css'" th:href="@{/webjars/cropper/3.1.3/dist/cropper.css}">
+<link rel="stylesheet" type="text/css" th:href="@{/webjars/cropper/3.1.3/dist/cropper.css}">
 <script th:src="@{/webjars/cropper/3.1.3/dist/cropper.js}"></script>
 </body>
 </html>

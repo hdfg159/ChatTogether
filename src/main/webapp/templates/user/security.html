@@ -3,42 +3,63 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Security</title>
+    <title>安全</title>
+    <th:block th:replace="template::generalAsset">
+    </th:block>
 </head>
 <body>
 <div th:replace="template::header"></div>
-<h3>Security-Change Password</h3>
-<form sec:authorize="isAuthenticated()" action="#" th:action="@{/user/security}" th:method="post"
-      th:object="${changePasswordFormVO}">
-    <table>
-        <tbody>
-        <tr>
-            <td><label>Existing Password</label></td>
-            <td><input type="password" th:field="*{existingPassword}" th:required="required"/></td>
-        </tr>
-        <tr>
-            <td><label>New Password</label></td>
-            <td><input type="password" th:field="*{newPassword}" th:required="required"/></td>
-        </tr>
-        <tr>
-            <td><label>Confirm Password</label></td>
-            <td><input type="password" th:field="*{confirmPassword}" th:required="required"/></td>
-        </tr>
-        <tr>
-            <td></td>
-            <td><input type="submit" th:value="'ok'"/></td>
-        </tr>
-        </tbody>
-    </table>
-    <div th:if="${#fields.hasErrors()}">
-        <ul>
-            <li th:each="error:${#fields.errors()}" th:text="${error}">Input Error</li>
-        </ul>
+<main>
+    <div class="container">
+        <div class="card-panel">
+            <h5 th:text="'密码管理'"></h5>
+            <div class="divider"></div>
+            <div class="section">
+                <div class="row">
+                    <form sec:authorize="isAuthenticated()"
+                          action="#"
+                          th:action="@{/user/security}"
+                          th:method="post"
+                          class="col s12"
+                          th:object="${changePasswordFormVO}">
+                        <div th:if="${#fields.hasErrors()}" class="col s10 offset-s1">
+                            <blockquote>
+                                <p th:each="error:${#fields.errors()}" th:text="${error}">
+                                </p>
+                            </blockquote>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s10 offset-s1">
+                                <input type="password" th:field="*{existingPassword}"/>
+                                <label>原密码</label>
+                            </div>
+                            <div class="input-field col s10 offset-s1">
+                                <input type="password"
+                                       class="validate" th:field="*{newPassword}"
+                                       th:required="required"/>
+                                <label>新密码</label>
+                            </div>
+                            <div class="input-field col s10 offset-s1">
+                                <input type="password"
+                                       id="confirmPassword"
+                                       th:field="*{confirmPassword}"/>
+                                <label>重复输入新密码</label>
+                            </div>
+                            <div class="col s10 offset-s1 center">
+                                <button type="submit"
+                                        th:text="'确定'"
+                                        class="waves-effect waves-teal btn"></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div th:unless="${exception == null}">
+                    <span th:text="|错误：${exception.message}|"></span>
+                </div>
+            </div>
+        </div>
     </div>
-    <div th:unless="${exception == null}">
-        <span th:text="|错误：${exception.message}|"></span>
-    </div>
-</form>
+</main>
 <div th:replace="template::footer"></div>
 </body>
 </html>

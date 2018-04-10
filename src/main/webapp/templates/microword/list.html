@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title th:text="'MicroWord List - '+${username}">MicroWord List</title>
@@ -12,61 +13,112 @@
                 'microWordId': microWordId, _csrf: [[${_csrf.token}]]
             }, function () {
             }).done(function (data, textStatus, jqXHR) {
-                microWordAgreeCountSelector.val(parseInt(microWordAgreeCountSelector.val()) + 1);
+                microWordAgreeCountSelector.text(parseInt(microWordAgreeCountSelector.text()) + 1);
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                console.info('Request Error!' + errorThrown);
-                alert('您已经点赞过!不能再操作哦~');
+                M.toast({html: '已经点赞过了哦～', classes: 'rounded'});
             });
         }
     </script>
 </head>
 <body>
 <div th:replace="template::header"></div>
-<h3 th:text="|${username}'s Microword List|"></h3>
-<div th:each="microWord:${microWordList}" style="border: dashed">
-    <img src=""
-         th:src="@{/{profilePhoto}(profilePhoto=${microWord.user.userProfile.profilePhoto})}"
-         th:width="32px"
-         th:height="32px"/>
-    <a th:text="${microWord.user.username}"
-       th:href="@{/userprofile/details/{username}(username=${microWord.user.username})}"></a>
-    <span th:text="${#dates.format(microWord.createTime,'yy-MM-dd HH:mm:ss')}"></span>
-    <a href="#"
-       th:href="@{/microword/details/{microWordId}(microWordId=${microWord.id})}"
-       th:text="'View'">View</a>
-    <p class="convert-emoji" th:utext="${microWord.content}"></p>
-    <a th:each="microWordAttachment:${microWord.microWordAttachments}"
-       th:href="@{/{pictureUrl}(pictureUrl=${microWordAttachment.url})}">
-        <img src=""
-             width="128px"
-             height="128px"
-             th:src="@{/{pictureUrl}(pictureUrl=${microWordAttachment.url})}"/>
-    </a>
-    <br/>
-    <span th:text="|Comment:${#lists.size(microWord.microWordComments)}|"></span>
-    <span th:text="' | Agree:'"></span>
-    <input type="button" th:id="|microWordId_agree_${microWord.id}|"
-           th:onclick="|agreeMicroWord(${microWord.id})|"
-           th:value="${#lists.size(microWord.microWordAgrees)}"/>
-</div>
-<div>
-    <form th:action="@{/microword/{username}(username=${username})}"
-          th:method="get"
-          th:onsubmit="'return pageFormSubmit()'">
-        <span th:text="|${microWordList.number+1}/${microWordList.totalPages} Pages|">总页数</span>
-        <input type="number" th:min="1" th:max="${microWordList.totalPages}" th:id="input_page"
-               th:required="required"/>
-        <input type="hidden" th:name="page" th:id="submit_page"/>
-        <input type="submit" th:value="Go">
-    </form>
-    <a th:unless="${microWordList.number==0}"
-       th:href="@{/microword/{username}(username=${username},page=${microWordList.number - 1})}"
-       th:text="'Previous'">上一页</a>
-    <a th:unless="${microWordList.number+1==microWordList.totalPages||microWordList.totalElements==0}"
-       th:href="@{/microword/{username}(username=${username},page=${microWordList.number+1})}"
-       th:text="'Next'">下一页</a>
-    <span th:text="|${microWordList.numberOfElements}/${microWordList.totalElements} Elements Count|">总数据量</span>
-</div>
+<main>
+    <div class="row">
+        <div class="container">
+            <div class="card-panel">
+                <h5 th:text="|${username}的微说|"></h5>
+                <div th:each="microWord:${microWordList}">
+                    <div class="divider"></div>
+                    <div class="section">
+                        <div class="row">
+                            <img src=""
+                                 class="circle"
+                                 th:src="@{/{profilePhoto}(profilePhoto=${microWord.user.userProfile.profilePhoto})}"
+                                 th:width="32px"
+                                 th:height="32px"/>
+                            <a th:text="${microWord.user.username}"
+                               class="input-field"
+                               th:href="@{/userprofile/details/{username}(username=${microWord.user.username})}"></a>
+                            <span th:text="${#dates.format(microWord.createTime,'yyyy-MM-dd HH:mm:ss')}"></span>
+                            <div class="right">
+                                <button th:type="button"
+                                        class="waves-effect waves-light btn-flat tooltipped"
+                                        data-position="top"
+                                        data-tooltip="删除"
+                                        sec:authorize="hasAnyRole('ROLE_ADMIN_MICROWORD') or #authentication.name == #vars.microWord.user.username"
+                                        th:onclick="|deleteMicroWord(${microWord.id})|">
+                                    <i class="material-icons left">delete</i>
+                                </button>
+                                <a class="waves-effect waves-light btn-flat"
+                                   th:href="@{/microword/details/{microWordId}(microWordId=${microWord.id})}">
+                                    <i class="material-icons left">message</i>
+                                    <span th:text="${#lists.size(microWord.microWordAgrees)}"></span>
+                                </a>
+                                <button type="button"
+                                        data-tooltip="点赞"
+                                        class="waves-effect waves-light btn-flat tooltipped"
+                                        data-position="top"
+                                        th:onclick="|agreeMicroWord(${microWord.id})|">
+                                    <i class="material-icons left">favorite</i>
+                                    <span th:id="|microWordId_agree_${microWord.id}|"
+                                          th:text="${#lists.size(microWord.microWordAgrees)}"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="convert-emoji" th:utext="${microWord.content}"></p>
+                        <div class="slider" th:unless="${#lists.isEmpty(microWord.microWordAttachments)}">
+                            <ul class="slides">
+                                <li th:each="microWordAttachment:${microWord.microWordAttachments}">
+                                    <a href="#" th:href="@{/{pictureUrl}(pictureUrl=${microWordAttachment.url})}">
+                                        <img src=""
+                                             th:src="@{/{pictureUrl}(pictureUrl=${microWordAttachment.url})}"/>
+                                    </a>
+                                    <div class="caption center-align">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <form action="" th:action="@{/microword/{username}(username=${username})}"
+                          th:method="get"
+                          th:onsubmit="'return pageFormSubmit()'">
+                        <div class="input-field col s3 center">
+                            <a th:unless="${microWordList.number==0}"
+                               class="waves-effect waves-light btn"
+                               th:href="@{/microword/{username}(username=${username},page=${microWordList.number - 1})}"
+                               th:text="'上一页'"></a>
+                        </div>
+                        <div class="input-field col s3 center">
+                            <a th:unless="${microWordList.number+1==microWordList.totalPages||microWordList.totalElements==0}"
+                               class="waves-effect waves-light btn"
+                               th:href="@{/microword/{username}(username=${username},page=${microWordList.number+1})}"
+                               th:text="'下一页'"></a>
+                        </div>
+                        <div class="input-field col s3">
+                            <input type="number"
+                                   th:min="1"
+                                   th:max="${microWordList.totalPages}"
+                                   id="input_page"
+                                   th:required="required"/>
+                            <label for="input_page"
+                                   th:text="|当前第${microWordList.number+1}页/总${microWordList.totalPages}页|"></label>
+                        </div>
+                        <input type="hidden" th:name="page" th:id="submit_page"/>
+                        <div class="input-field col s3">
+                            <button type="submit"
+                                    class="waves-effect waves-light btn center">跳转
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
 <div th:replace="template::footer"></div>
 </body>
 </html>

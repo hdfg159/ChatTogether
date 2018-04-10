@@ -8,24 +8,76 @@
 </head>
 <body>
 <div th:replace="template::header"></div>
+<main>
+    <div class="container">
+        <div class="card-panel">
+            <h5 th:text="'搜索用户'"></h5>
+            <div class="divider"></div>
+            <div class="section">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户名</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user:${users}">
+                        <td th:text="${user.id}"></td>
+                        <td>
+                            <img class="circle responsive-img"
+                                 th:src="@{/{profilePhoto}(profilePhoto=${user.userProfile.profilePhoto})}"
+                                 th:width="32px"
+                                 th:height="32px"/>
+                            <a class="tooltipped"
+                               data-position="bottom"
+                               th:data-tooltip="|用户ID:${user.id}|"
+                               th:text="${user.username}"
+                               th:href="@{/userprofile/details/{username}(username=${user.username})}">Username</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row">
+                <form action="" th:action="@{/search}" th:method="get" th:onsubmit="'return pageFormSubmit()'">
+                    <div class="input-field col s3 center">
+                        <a th:unless="${users.number==0}"
+                           class="waves-effect waves-light btn"
+                           th:href="|${#httpServletRequest.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&page='),'')}&page=${users.number-1}|"
+                           th:text="'上一页'"></a>
+                    </div>
+                    <div class="input-field col s3 center">
+                        <a th:unless="${users.number+1==users.totalPages||users.totalElements==0}"
+                           class="waves-effect waves-light btn"
+                           th:href="|${#httpServletRequest.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&page='),'')}&page=${users.number+1}|"
+                           th:text="'下一页'"></a>
+                    </div>
+                    <div class="input-field col s3">
+                        <input type="number"
+                               th:min="1"
+                               th:max="${users.totalPages}"
+                               id="input_page"
+                               th:required="required"/>
+                        <label for="input_page" th:text="|当前第${users.number+1}页/总${users.totalPages}页|"></label>
+                    </div>
+                    <input type="hidden" th:name="'searchContent'" th:value="${homeSearchFormVO.searchContent}"/>
+                    <input type="hidden" th:name="'searchItem'" th:value="${homeSearchFormVO.searchItem}"/>
+                    <input type="hidden" th:name="page" th:id="submit_page"/>
+                    <div class="input-field col s3">
+                        <button type="submit"
+                                class="waves-effect waves-light btn center">跳转
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</main>
+
 <div th:with="queryStringWithoutPage=${#strings.substringBefore(#httpServletRequest.queryString,'&page')},queryString=${#httpServletRequest.queryString}">
-    <table>
-        <tbody>
-        <tr>
-            <th th:text="'Username'"></th>
-        </tr>
-        <th:block th:each="user : ${users}">
-            <tr>
-                <td>
-                    <img th:src="@{/{profilePhoto}(profilePhoto=${user.userProfile.profilePhoto})}"
-                         th:width="32px"
-                         th:height="32px"/>
-                    <a href="#" th:href="@{/userprofile/details/{username}(username=${user.username})}"
-                       th:text="${user.username}"></a></td>
-            </tr>
-        </th:block>
-        </tbody>
-    </table>
     <a th:unless="${users.number == 0}"
        th:href="|${#httpServletRequest.requestURI}?${#strings.isEmpty(queryStringWithoutPage)?queryString:queryStringWithoutPage}&page=${users.number - 1}|"
        th:text="'Previous'">上一页</a>

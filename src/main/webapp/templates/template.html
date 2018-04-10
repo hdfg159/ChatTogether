@@ -7,7 +7,7 @@
 </head>
 <body>
 <header th:fragment="header">
-    <div sec:authorize="isAuthenticated()">
+    <th:block sec:authorize="isAuthenticated()">
         <script th:inline="javascript">
             function refreshNotification() {
                 setInterval('getNoticeCount()', 30000);
@@ -16,10 +16,16 @@
             function getNoticeCount() {
                 $.getJSON('[(@{/messagenotification/api/count})]', {}, function () {
                 }).done(function (data, textStatus, jqXHR) {
+                    var notice = $('#notice_count');
                     if (data !== null) {
-                        $('#notice_count').text('Message:' + data.data);
+                        notice.text(data.data);
+                        if (data.data === 0) {
+                            notice.attr('class', 'new badge blue');
+                            return;
+                        }
+                        notice.attr('class', 'new badge red');
                     } else {
-                        $('#notice_count').text('Message:0');
+                        notice.text('?');
                     }
                 }).fail(function (jqXHR, textStatus, errorThrown) {
                     console.error('Request Error!' + errorThrown);
@@ -29,32 +35,109 @@
             getNoticeCount();
             refreshNotification();
         </script>
-        <form action="#" th:action="@{/logout}" th:method="post">
-            <span sec:authentication="name"></span>
-            <span th:text="',Welcome to the T-Chat System!'">Logo</span>
-            <input type="submit" th:value="'Logout'" value="退出">
-        </form>
-        <a th:href="@{/}" th:text="'HomePage'"></a>
-        <a href="#" th:href="@{/userprofile/details/{username}(username=${#authentication.name})}"
-           th:text="Details">个人资料</a>
-        <a href="#" th:href="@{/user/security}" th:text="'Security'">安全管理</a>
-        <a href="#" th:href="@{/user/users}" th:text="'User Manage'"
-           sec:authorize="hasAnyRole('ROLE_ADMIN_USER')">用户管理</a>
-        <a href="#" th:href="@{/userfriend/friends}" th:text="'User Friend'">好友</a>
-        <a href="#" id="notice_count" th:href="@{/messagenotification/shownotifications}" th:text="'Message'"></a>
-        <a href="#"
-           th:href="@{/suggestion/all}"
-           th:text="'Suggestion'"></a>
-    </div>
-    <div sec:authorize="isAnonymous()">
-        <a th:href="@{/}" th:text="'HomePage'"></a>
-        <a href="#" th:href="@{/register}" th:text="'Register'">注册</a>
-        <a href="#" th:href="@{/login}" th:text="'Login'">登录</a>
-    </div>
+    </th:block>
+    <script>
+        function logout() {
+            $('#logout').submit();
+        }
+    </script>
+    <ul id="slide-out" class="sidenav sidenav-fixed">
+        <li>
+            <div class="user-view">
+                <div class="background">
+                </div>
+
+                <a sec:authorize="isAnonymous()"
+                   href="#name">
+                    <span class="blue-text name" th:text="${#authentication.name}"></span>
+                </a>
+                <th:block sec:authorize="isAuthenticated()">
+                    <a href="#user" th:href="@{/userprofile/details/{username}(username=${#authentication.name})}">
+                        <img class="circle"
+                             th:src="@{/images/profilephoto/default.png}"
+                             src=""/>
+                    </a>
+                    <a href="#name"
+                       th:href="@{/userprofile/details/{username}(username=${#authentication.name})}">
+                        <span class="blue-text name" th:text="${#authentication.name}"></span>
+                    </a>
+                </th:block>
+            </div>
+        </li>
+
+        <li><a class="subheader">功能</a></li>
+        <li>
+            <div class="divider"></div>
+        </li>
+
+        <th:block sec:authorize="isAnonymous()">
+            <li>
+                <a th:href="@{/login}" th:text="'登录'"></a>
+            </li>
+            <li>
+                <a th:href="@{/register}" th:text="'注册'"></a>
+            </li>
+        </th:block>
+
+        <li>
+            <a th:href="@{/}" th:text="'主页'"></a>
+        </li>
+
+        <th:block sec:authorize="isAuthenticated()">
+            <li>
+                <a href="#" th:href="@{/userfriend/friends}" th:text="'好友'"></a>
+            </li>
+            <li>
+                <a href="#"
+                   th:href="@{/messagenotification/shownotifications}">
+                    消息
+                    <span class="new badge blue" th:id="notice_count" data-badge-caption=""></span>
+                </a>
+            </li>
+            <li>
+                <a href="#"
+                   th:href="@{/user/security}"
+                   th:text="'安全'"></a>
+            </li>
+            <li>
+                <a href="#"
+                   th:href="@{/userprofile/details/{username}(username=${#authentication.name})}"
+                   th:text="'个人信息'"></a>
+            </li>
+            <li>
+                <a href="#"
+                   th:href="@{/suggestion/all}"
+                   th:text="'反馈建议'"></a>
+            </li>
+            <li>
+                <a href="#" th:text="退出" onclick="logout();"></a>
+                <form action="#" th:action="@{/logout}" th:method="post" th:id="logout">
+                </form>
+            </li>
+        </th:block>
+        <li sec:authorize="hasAnyRole('ROLE_ADMIN_USER')"><a class="subheader">高级</a></li>
+        <li sec:authorize="hasAnyRole('ROLE_ADMIN_USER')">
+            <div class="divider"></div>
+        </li>
+        <li sec:authorize="hasAnyRole('ROLE_ADMIN_USER')">
+            <a href="#" th:href="@{/user/users}" th:text="'用户管理'"></a>
+        </li>
+    </ul>
+    <a href="#" data-target="slide-out" class="top-nav sidenav-trigger full hide-on-large-only">
+        <i class="material-icons">menu</i>
+    </a>
 </header>
 
 <th:block th:fragment="editorAsset">
-    <link rel="stylesheet" th:type="'text/css'" th:href="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.css}">
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet"
+          th:href="@{/webjars/materialize-css/1.0.0-alpha.3/dist/css/materialize.min.css}"
+          media="screen,projection"/>
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
     <link rel="stylesheet" th:href="@{/resources/css/emojionearea.min.css}"/>
     <link rel="stylesheet" th:href="@{/resources/css/emojione.min.css}"/>
     <script th:src="@{/webjars/jquery/3.2.1/jquery.min.js}"></script>
@@ -62,17 +145,54 @@
     <script th:src="@{/resources/js/emojione.min.js}"></script>
     <script th:src="@{/resources/js/emojionearea.min.js}"></script>
     <script th:src="@{/resources/js/app.js}"></script>
+    <style>
+        header, main, footer {
+            padding-left: 300px;
+        }
+
+        @media only screen and (max-width: 992px) {
+            header, main, footer {
+                padding-left: 0;
+            }
+        }
+    </style>
 </th:block>
 
 <th:block th:fragment="generalAsset">
-    <link rel="stylesheet" th:type="'text/css'" th:href="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.css}">
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet"
+          th:href="@{/webjars/materialize-css/1.0.0-alpha.3/dist/css/materialize.min.css}"
+          media="screen,projection"/>
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
     <script th:src="@{/webjars/jquery/3.2.1/jquery.min.js}"></script>
     <script th:src="@{/webjars/jquery-ui/1.12.1/jquery-ui.min.js}"></script>
     <script th:src="@{/resources/js/app.js}"></script>
+    <style>
+        header, main, footer {
+            padding-left: 300px;
+        }
+
+        @media only screen and (max-width: 992px) {
+            header, main, footer {
+                padding-left: 0;
+            }
+        }
+    </style>
 </th:block>
 
 <footer th:fragment="footer">
+    <!--JavaScript at end of body for optimized loading-->
+    <script type="text/javascript"
+            th:src="@{/webjars/materialize-css/1.0.0-alpha.3/dist/js/materialize.min.js}"></script>
+    <script>
+        $(document).ready(function () {
+            $('.sidenav').sidenav();
+        });
+    </script>
 </footer>
-
 </body>
 </html>

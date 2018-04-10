@@ -10,10 +10,10 @@
         function saveSuggestion() {
             $.post('[(@{/suggestion/api/save})]', $('#suggestionForm').serialize(), function () {
             }).done(function (data, textStatus, jqXHR) {
-                alert('Thank your suggestion.');
+                alert('谢谢你的建议～');
                 window.location.reload();
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('Commit Fail! Please Check Input ~ Cause:' + errorThrown);
+                M.toast({html: '发表失败!请检查输入字符数～' + errorThrown, classes: 'rounded'});
             });
         }
 
@@ -24,88 +24,150 @@
             }).done(function (data, textStatus, jqXHR) {
                 history.go(0);
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('Request Error!' + errorThrown);
+                M.toast({html: '删除失败' + errorThrown, classes: 'rounded'});
             });
         }
     </script>
 </head>
 <body>
 <div th:replace="template::header"></div>
-<h4 th:text="|Suggestion|"></h4>
-<form th:action="@{/suggestion/api/save}" th:method="post" th:id="suggestionForm">
-    <table>
-        <tbody>
-        <tr>
-            <td><label th:text="Title"></label></td>
-            <td><input type="text" th:name="'title'" th:id="'suggestionTitle'"/></td>
-        </tr>
-        <tr>
-            <td><label th:text="Content"></label></td>
-            <td><textarea th:name="'content'" th:id="'suggestionContent'"></textarea></td>
-        </tr>
-        <tr>
-            <td>
-                <select th:name="'type'">
-                    <option th:text="'Function Suggestion'" th:value="0"></option>
-                    <option th:text="'Bug'" th:value="1"></option>
-                </select>
-            </td>
-            <td>
-                <input type="button"
-                       th:value="'Send'"
-                       th:onclick="'saveSuggestion()'"/>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</form>
-<th:block sec:authorize="hasAnyRole('ROLE_ADMIN_SUGGESTION')">
-    <a href="#"
-       th:href="|${#request.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&sort='),'')}&sort=createTime,asc&page=|"
-       th:text="|CreateTime ASC|"></a>
-    <a href="#"
-       th:href="|${#request.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&sort='),'')}&sort=createTime,desc&page=|"
-       th:text="|CreateTime DESC|"></a>
+<main>
+    <div class="container">
+        <div class="card-panel">
+            <h5 th:text="'反馈建议'"></h5>
+            <div class="divider"></div>
+            <div class="section">
+                <form th:action="@{/suggestion/api/save}"
+                      th:method="post"
+                      class="col s12"
+                      id="suggestionForm">
+                    <div class="row">
+                        <div class="input-field col s5 offset-s1">
+                            <select name="type">
+                                <option th:text="'功能建议'" th:value="0"></option>
+                                <option th:text="'Bug反馈'" th:value="1"></option>
+                            </select>
+                            <label th:text="|选择类型|"></label>
+                        </div>
+                        <div class="input-field col s5">
+                            <input type="text"
+                                   data-length="20"
+                                   name="title"
+                                   th:required="required"
+                                   id="suggestionTitle"/>
+                            <label th:text="|标题|"></label>
+                        </div>
+                        <div class="input-field col s10 offset-s1">
+                    <textarea name="content"
+                              th:required="required"
+                              data-length="100"
+                              class="materialize-textarea"
+                              id="suggestionContent"></textarea>
+                            <label th:text="输入内容"></label>
+                        </div>
+                        <div class="col s10 offset-s1 center">
+                            <button th:text="'发表'"
+                                    th:type="button"
+                                    class="waves-effect waves-light btn"
+                                    th:onclick="'saveSuggestion()'">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row" sec:authorize="hasAnyRole('ROLE_ADMIN_SUGGESTION')">
+                        <div class="col s12 right-align">
+                            <a href="#"
+                               class="waves-effect waves-light btn-flat"
+                               th:href="|${#request.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&sort='),'')}&sort=createTime,asc&page=|">
+                                <i class="material-icons">arrow_upward</i>
+                            </a>
+                            <a href="#"
+                               class="waves-effect waves-light btn-flat"
+                               th:href="|${#request.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&sort='),'')}&sort=createTime,desc&page=|">
+                                <i class="material-icons">arrow_downward</i>
+                            </a>
+                        </div>
+                    </div>
+                </form>
+                <div class="col s10 offset-s1" sec:authorize="hasAnyRole('ROLE_ADMIN_SUGGESTION')">
+                    <ul class="collapsible" th:each="suggestion:${suggestions}">
+                        <li>
+                            <div class="collapsible-header">
+                                <img src=""
+                                     class="input-field circle"
+                                     th:src="@{/{profilePhoto}(profilePhoto=${suggestion.user.userProfile.profilePhoto})}"
+                                     th:width="32px"
+                                     th:height="32px"/>
+                                <a th:href="@{/userprofile/details/{username}(username=${suggestion.user.username})}"
+                                   class="valign-wrapper"
+                                   style="margin-left: 5px;"
+                                   href="#"
+                                   th:text="|${suggestion.user.username}：${suggestion.title}|"></a>
+                                <span class="new badge blue"
+                                      th:data-badge-caption="|${#dates.format(suggestion.createTime,'yy-MM-dd HH:mm:ss')} ${suggestion.getType()==0?'功能反馈':'Bug反馈'}|"></span>
+                            </div>
+                            <div class="collapsible-body">
+                                <p>
+                                    <span th:text="${suggestion.content}"></span>
+                                    <button type="button"
+                                            class="right waves-effect waves-light btn-flat tooltipped"
+                                            th:onclick="|deleteSuggestion(${suggestion.id});|"
+                                            data-position="top"
+                                            data-tooltip="删除">
+                                        <i class="material-icons">delete</i>
+                                    </button>
+                                </p>
 
-    <th:block th:each="suggestion:${suggestions}">
-        <div style="border: dotted">
-            <span th:text="'User:'"></span>
-            <img src=""
-                 th:src="@{/{profilePhoto}(profilePhoto=${suggestion.user.userProfile.profilePhoto})}"
-                 th:width="32px"
-                 th:height="32px"/>
-            <a th:href="@{/userprofile/details/{username}(username=${suggestion.user.username})}" href="#"
-               th:text="${suggestion.user.username}"></a>
-            <div th:text="|Date:${#dates.format(suggestion.createTime,'yyyy-MM-dd HH:mm:ss')}|">
-            </div>
-            <div th:text="|Title:${suggestion.title}|"></div>
-            <div th:text="|Content:${suggestion.content}|"></div>
-            <div>
-                <input type="button" th:onclick="|deleteSuggestion(${suggestion.id})|" th:value="'Delete'"/>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="row" sec:authorize="hasAnyRole('ROLE_ADMIN_SUGGESTION')">
+                    <form action="" th:action="${#httpServletRequest.requestURI}"
+                          th:method="get"
+                          class="col s12"
+                          th:onsubmit="'return pageFormSubmit()'">
+                        <div class="input-field col s3 center">
+                            <a th:unless="${suggestions.number==0}"
+                               class="waves-effect waves-light btn"
+                               th:href="|${#httpServletRequest.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&page='),'')}&page=${suggestions.number-1}|"
+                               th:text="'上一页'"></a>
+                        </div>
+                        <div class="input-field col s3 center">
+                            <a th:unless="${suggestions.number+1==suggestions.totalPages||suggestions.totalElements==0}"
+                               class="waves-effect waves-light btn"
+                               th:href="|${#httpServletRequest.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&page='),'')}&page=${suggestions.number+1}|"
+                               th:text="'下一页'"></a>
+                        </div>
+                        <div class="input-field col s3">
+                            <input type="number"
+                                   id="input_page"
+                                   th:min="1"
+                                   th:max="${suggestions.totalPages}"
+                                   th:required="required"/>
+                            <label for="input_page"
+                                   th:text="|当前第${suggestions.number+1}页/总${suggestions.totalPages}页|"></label>
+                        </div>
+                        <input type="hidden" th:name="sort"
+                               th:value="${#uris.unescapePath(#strings.substringBefore(#strings.substringAfter(#request.queryString,'sort='),'&page='))}"/>
+                        <input type="hidden" id="submit_page" th:name="page"/>
+                        <div class="input-field col s3">
+                            <button type="submit"
+                                    class="waves-effect waves-light btn center">跳转
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </th:block>
-
-    <form action="" th:action="${#httpServletRequest.requestURI}" th:method="get"
-          th:onsubmit="'return pageFormSubmit()'">
-        <span th:text="|${suggestions.number+1}/${suggestions.totalPages}Pages|">总页数</span>
-        <input type="number"
-               id="input_page"
-               th:min="1" th:max="${suggestions.totalPages}"
-               th:required="required"/>
-        <input type="hidden" th:name="sort"
-               th:value="${#uris.unescapePath(#strings.substringBefore(#strings.substringAfter(#request.queryString,'sort='),'&page='))}"/>
-        <input type="hidden" id="submit_page" th:name="page"/>
-        <input type="submit" th:value="Go">
-    </form>
-    <a th:unless="${suggestions.number==0}"
-       th:href="|${#httpServletRequest.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&page='),'')}&page=${suggestions.number-1}|"
-       th:text="'Previous'">上一页</a>
-    <a th:unless="${suggestions.number+1==suggestions.totalPages||suggestions.totalElements==0}"
-       th:href="|${#httpServletRequest.requestURI}?${#strings.defaultString(#strings.substringBefore(#request.queryString,'&page='),'')}&page=${suggestions.number+1}|"
-       th:text="'Next'">下一页</a>
-    <span th:text="|${suggestions.numberOfElements}/${suggestions.totalElements} Elements Count|">页面显示数据量</span>
-</th:block>
+    </div>
+</main>
+<script>
+    $(document).ready(function () {
+        $('.collapsible').collapsible();
+        $('select').select();
+        $('textarea#suggestionContent,input#suggestionTitle').characterCounter();
+    });
+</script>
 <div th:replace="template::footer"></div>
 </body>
 </html>

@@ -31,11 +31,13 @@ public class MessageController {
 	private final MessageService messageService;
 	
 	@Autowired
-	public MessageController(MessageService messageService) {this.messageService = messageService;}
+	public MessageController(MessageService messageService) {
+		this.messageService = messageService;
+	}
 	
 	@Secured(USER)
 	@GetMapping("/chat/{username}")
-	public String chat(Model model, @CurrentUser UserDetails userDetails, @PathVariable String username, @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+	public String chat(Model model, @CurrentUser UserDetails userDetails, @PathVariable String username, @PageableDefault(sort = "id", direction = Sort.Direction.DESC, size = 20) Pageable pageable) {
 		Page<Message> messages = messageService.findAllByUsers(userDetails.getUsername(), username, pageable);
 		model.addAttribute("messages", messages);
 		model.addAttribute("chatUsername", username);

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static hdfg159.chattogether.constant.RoleConsts.USER;
+import static hdfg159.chattogether.util.ResponseUtils.responseDataSuccess;
 import static hdfg159.chattogether.util.ResponseUtils.responseSuccess;
 
 /**
@@ -50,5 +51,11 @@ public class UserFriendApiController {
 	public BaseJsonObject<?> accept(@CurrentUser UserDetails userDetails, @PathVariable String username) {
 		userFriendService.acceptFriend(userDetails.getUsername(), username);
 		return responseSuccess();
+	}
+	
+	@Secured(USER)
+	@GetMapping("/existfriends/{username}")
+	public BaseJsonObject<?> isExistFriends(@CurrentUser UserDetails userDetails, @PathVariable String username) {
+		return responseDataSuccess(userFriendService.isExistUserFriend(userDetails.getUsername(), username));
 	}
 }

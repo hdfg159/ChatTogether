@@ -43,7 +43,11 @@ public class UserProfileController {
 	public String showDetails(Model model, @PathVariable String username, @CurrentUser UserDetails userDetails) {
 		UserProfile userProfile = userProfileService.findByUsername(username);
 		model.addAttribute("userProfile", userProfile);
-		model.addAttribute("isExistUserFriend", userFriendService.isExistUserFriend(userDetails.getUsername(), username));
+		
+		if (userDetails != null) {
+			model.addAttribute("isExistUserFriend", userFriendService.isExistUserFriend(userDetails.getUsername(), username));
+		}
+		
 		return "user/details";
 	}
 	

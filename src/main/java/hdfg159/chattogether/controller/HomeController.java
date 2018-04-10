@@ -76,6 +76,15 @@ public class HomeController {
 		return "register";
 	}
 	
+	@GetMapping("/login")
+	public String forwardLogin(@RequestParam(value = "error", required = false) String error, Model model) {
+		if (error != null) {
+			model.addAttribute("error", "登录失败，检查输入的用户名和密码是否正确");
+			return "login";
+		}
+		return "login";
+	}
+	
 	@GetMapping("/")
 	public String showAllMicroWords(Model model, @PageableDefault(sort = "createTime", direction = Sort.Direction.DESC) Pageable pageable) {
 		Page<MicroWord> microWords = microWordService.findAll(pageable);

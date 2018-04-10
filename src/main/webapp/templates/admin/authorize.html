@@ -9,27 +9,45 @@
         function saveUserAuthentication() {
             $.post('[(@{/userauthorization/api/save})]', $('#userAuthenticationForm').serialize(), function () {
             }).done(function (data, textStatus, jqXHR) {
-                alert('Success!');
+                M.toast({html: '保存成功', classes: 'rounded'});
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                alert('Request Error!' + errorThrown);
+                M.toast({html: '保存失败!' + errorThrown, classes: 'rounded'});
             });
         }
     </script>
 </head>
 <body>
 <div th:replace="template::header"></div>
-<h4 th:text="|User Authentication - ${username}|"></h4>
-<form th:action="@{/}" id="userAuthenticationForm">
-    <label th:each="userPermission:${allPermissions}">
-        <input type="checkbox" th:value="${userPermission.id}"
-               th:text="${userPermission.roleName}"
-               th:checked="${#lists.contains(userPermissions,userPermission)}"
-               th:name="'permissions'"/>
-        <br>
-    </label>
-    <input type="hidden" th:name="'username'" th:value="${username}"/>
-</form>
-<button th:text="'ok'" onclick="saveUserAuthentication()">保存</button>
+<main>
+    <div class="container">
+        <div class="card-panel">
+            <h5 th:text="|授权管理(用户:${username})|"></h5>
+            <div class="divider"></div>
+            <div class="section">
+                <form th:action="@{/}" id="userAuthenticationForm">
+                    <th:block th:each="userPermission:${allPermissions}">
+                        <p>
+                            <label th:for="${userPermission.id}">
+                                <input type="checkbox"
+                                       class="filled-in"
+                                       th:name="'permissions'"
+                                       th:id="${userPermission.id}"
+                                       th:value="${userPermission.id}"
+                                       th:checked="${#lists.contains(userPermissions,userPermission)}"/>
+                                <span th:text="${userPermission.roleName}"></span>
+                            </label>
+                        </p>
+                    </th:block>
+                    <input type="hidden" th:name="'username'" th:value="${username}"/>
+                </form>
+                <button th:text="|确定|"
+                        onclick="saveUserAuthentication()"
+                        class="waves-effect btn">
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
 <div th:replace="template::footer"></div>
 </body>
 </html>
