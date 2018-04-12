@@ -367,7 +367,7 @@
                                     <a class="waves-effect waves-light btn-flat"
                                        th:href="@{/microword/details/{microWordId}(microWordId=${microWord.id})}">
                                         <i class="material-icons left">message</i>
-                                        <span th:text="${#lists.size(microWord.microWordAgrees)}"></span>
+                                        <span th:text="${#lists.size(microWord.microWordComments)}"></span>
                                     </a>
                                     <button type="button"
                                             data-tooltip="点赞"
