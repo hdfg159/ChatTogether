@@ -56,6 +56,7 @@ public class UserServiceImplTest {
 	
 	@Test
 	public void findAll() throws Exception {
+		Assert.assertNotNull(userService.findAll(new PageRequest(0, 10)));
 	}
 	
 	@Test

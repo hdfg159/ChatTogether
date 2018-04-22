@@ -52,11 +52,6 @@
                     <span class="blue-text name" th:text="${#authentication.name}"></span>
                 </a>
                 <th:block sec:authorize="isAuthenticated()">
-                    <a href="#user" th:href="@{/userprofile/details/{username}(username=${#authentication.name})}">
-                        <img class="circle"
-                             th:src="@{/images/profilephoto/default.png}"
-                             src=""/>
-                    </a>
                     <a href="#name"
                        th:href="@{/userprofile/details/{username}(username=${#authentication.name})}">
                         <span class="blue-text name" th:text="${#authentication.name}"></span>
