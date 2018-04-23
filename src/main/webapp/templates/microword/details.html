@@ -144,7 +144,7 @@
                         <i class="material-icons">delete</i>
                     </button>
                 </div>
-                <p class="convert-emoji" th:text="${microWordDetailVO.microWord.content}"></p>
+                <p class="convert-emoji" th:utext="${microWordDetailVO.microWord.content}"></p>
                 <br>
                 <div class="row">
                     <div class="slider" th:unless="${#lists.isEmpty(microWordDetailVO.microWord.microWordAttachments)}">

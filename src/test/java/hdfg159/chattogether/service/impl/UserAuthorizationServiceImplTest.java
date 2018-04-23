@@ -25,7 +25,7 @@ public class UserAuthorizationServiceImplTest {
 	
 	@Test
 	public void authorize() {
-		Long[] permissionIds = new Long[]{(long) 6, (long) 7, (long) 8, (long) 9, (long) 10};
+		Long[] permissionIds = new Long[]{(long) 1, (long) 2, (long) 3, (long) 4, (long) 5};
 		userAuthorizationService.save(UserAuthorizationFormVO.builder()
 				.username("admin")
 				.permissions(permissionIds).build());

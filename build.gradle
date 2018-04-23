@@ -42,8 +42,8 @@ dependencies {
     compile 'javax.transaction:transaction-api:1.1-rev-1'
     compile 'org.hibernate:hibernate-entitymanager:5.2.10.Final'
 
-//    compile 'com.h2database:h2:1.4.196'
-    compile 'mysql:mysql-connector-java:5.1.41'
+    compile 'com.h2database:h2:1.4.196'
+    compile 'mysql:mysql-connector-java:5.1.46'
 
     compile 'org.hibernate:hibernate-validator:6.0.0.CR3'
 
@@ -62,7 +62,7 @@ dependencies {
     compile 'org.webjars.npm:sockjs-client:1.1.4'
     compile 'org.webjars.bower:stomp-websocket:2.3.4'
     compile 'org.webjars.npm:materialize-css:1.0.0-alpha.3'
-    
+
     compile 'com.github.penggle:kaptcha:2.3.2'
 
     compile 'org.projectlombok:lombok:1.16.18'

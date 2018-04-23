@@ -36,7 +36,7 @@ public class UserServiceImplTest {
 	@Test
 	@Transactional
 	@Rollback
-	@Repeat(value = 30)
+	@Repeat(value = 15)
 	public void save() throws Exception {
 		User user = User.builder()
 				.username(randomAlphanumeric(16))
