@@ -121,7 +121,11 @@
                     processData: false,
                     contentType: false,
                     success: function (data, textStatus, jqXHR) {
-                        M.toast({html: '保存成功', classes: 'rounded'});
+                        M.toast({
+                            html: '保存成功', displayLength: 1000, classes: 'rounded', completeCallback: function () {
+                                history.go(0);
+                            }
+                        });
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         M.toast({html: '上传头像失败' + errorThrown, classes: 'rounded'});

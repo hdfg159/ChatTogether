@@ -9,7 +9,11 @@
         function saveUserAuthentication() {
             $.post('[(@{/userauthorization/api/save})]', $('#userAuthenticationForm').serialize(), function () {
             }).done(function (data, textStatus, jqXHR) {
-                M.toast({html: '保存成功', classes: 'rounded'});
+                M.toast({
+                    html: '保存成功', displayLength: 1000, classes: 'rounded', completeCallback: function () {
+                        history.go(-1);
+                    }
+                });
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 M.toast({html: '保存失败!' + errorThrown, classes: 'rounded'});
             });

@@ -63,6 +63,10 @@
 
         function sendChatMessage() {
             var chatMessageTextarea = $('#chatMessageTextarea');
+            if (chatMessageTextarea.val().length > 2000 || chatMessageTextarea.val().length <= 0) {
+                M.toast({html: '请输入1~2000字符', classes: 'rounded'});
+                return;
+            }
             chatMessageTextarea.val(tranferStringLine(chatMessageTextarea.val()));
             var chatFormVO = $('#chatMessageForm').serializeObject();
             var text = JSON.stringify(chatFormVO);

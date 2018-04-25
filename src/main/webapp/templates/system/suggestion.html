@@ -7,13 +7,24 @@
     <th:block th:replace="template::editorAsset">
     </th:block>
     <script th:inline="javascript">
-        function saveSuggestion() {
+        function saveSuggestion(btn) {
+            $(btn).attr("disabled", "");
             $.post('[(@{/suggestion/api/save})]', $('#suggestionForm').serialize(), function () {
             }).done(function (data, textStatus, jqXHR) {
-                alert('谢谢你的建议～');
-                window.location.reload();
+                M.toast({
+                    html: '谢谢你的建议～',
+                    displayLength: 1000,
+                    classes: 'rounded',
+                    completeCallback: function () {
+                        window.location.reload();
+                    }
+                });
             }).fail(function (jqXHR, textStatus, errorThrown) {
-                M.toast({html: '发表失败!请检查输入字符数～' + errorThrown, classes: 'rounded'});
+                $(btn).removeAttr("disabled");
+                M.toast({
+                    html: '发表失败!请检查输入字符数～' + errorThrown,
+                    classes: 'rounded'
+                });
             });
         }
 
@@ -69,7 +80,7 @@
                             <button th:text="'发表'"
                                     th:type="button"
                                     class="waves-effect waves-light btn"
-                                    th:onclick="'saveSuggestion()'">
+                                    onclick="saveSuggestion(this)">
                             </button>
                         </div>
                     </div>

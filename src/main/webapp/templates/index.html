@@ -13,6 +13,7 @@
                 M.toast({html: '输入字符数过多，输入少于200字符', classes: 'rounded'});
                 return;
             }
+            $('#btnsendmicroword').attr('disabled', '');
             microWordContentSelector.val(tranferStringLine(microWordContentSelector.val()));
             $.ajax('[(@{/microword/api/save})]', {
                 method: "POST",
@@ -27,7 +28,11 @@
                     history.go(0);
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    M.toast({html: '保存失败', classes: 'rounded'});
+                    $('#btnsendmicroword').removeAttr('disabled');
+                    M.toast({
+                        html: '保存失败~' + errorThrown,
+                        classes: 'rounded'
+                    });
                 }
             });
         }
