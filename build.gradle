@@ -3,7 +3,7 @@ version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'war'
-apply plugin: 'org.akhikhl.gretty'
+apply from: 'https://raw.github.com/gretty-gradle-plugin/gretty/master/pluginScripts/gretty.plugin'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -14,17 +14,6 @@ tasks.withType(JavaCompile) {
 
 repositories {
     mavenCentral()
-}
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath 'org.akhikhl.gretty:gretty:+'
-    }
-
 }
 
 dependencies {
@@ -41,6 +30,9 @@ dependencies {
     compile 'org.springframework:spring-orm:4.3.9.RELEASE'
     compile 'javax.transaction:transaction-api:1.1-rev-1'
     compile 'org.hibernate:hibernate-entitymanager:5.2.10.Final'
+    //jdk10缺少
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
+
 
     compile 'com.h2database:h2:1.4.196'
     compile 'mysql:mysql-connector-java:5.1.46'
@@ -64,7 +56,8 @@ dependencies {
 
     compile 'com.github.penggle:kaptcha:2.3.2'
 
-    compile 'org.projectlombok:lombok:1.16.18'
+//    jdk10用最新的版本
+    compile 'org.projectlombok:lombok:1.18.2'
     compile 'org.apache.commons:commons-lang3:3.7'
 
     testCompile "org.springframework:spring-test:4.3.9.RELEASE"
